@@ -1,0 +1,19 @@
+{
+  "name": "motion-sensor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Motion Sensor System: iOS App + Python FastAPI Backend + ESP32 Firmware",
+  "scripts": {
+    "install:be": "cd motion-sensor-be && pip install -r requirements.txt",
+    "dev:be": "cd motion-sensor-be && uvicorn app.main:app --reload --port 8080",
+    "migrate:be": "cd motion-sensor-be && alembic upgrade head",
+    "build:firmware": "cd motion-sensor-firmware && platformio run",
+    "upload:firmware": "cd motion-sensor-firmware && platformio run -t upload",
+    "clean": "cd motion-sensor-firmware && platformio run -t clean",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:generate": "docker-compose exec motion-sensor-be alembic revision --autogenerate -m",
+    "docker:migrate": "docker-compose exec motion-sensor-be alembic upgrade head"
+  }
+}

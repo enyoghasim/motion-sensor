@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: motion-sensor-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_HOST_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - motion-sensor-network
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: motion-sensor-mosquitto
+    ports:
+      - "${MQTT_HOST_PORT}:1883"
+      - "${MQTT_WS_HOST_PORT}:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_pub -h localhost -t healthcheck -m ping -q 0 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - motion-sensor-network
+
+  motion-sensor-be:
+    build: ./motion-sensor-be
+    container_name: motion-sensor-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_HOST_PORT}:8080"
+    volumes:
+      - ./motion-sensor-be:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - MQTT_BROKER_HOST=${MQTT_BROKER_HOST}
+      - MQTT_BROKER_PORT=${MQTT_BROKER_PORT}
+      - WATCHFILES_FORCE_POLLING=true
+    restart: unless-stopped
+    networks:
+      - motion-sensor-network
+
+networks:
+  motion-sensor-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

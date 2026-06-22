@@ -1,0 +1,4 @@
+packages:
+  - 'motion-sensor-app'
+  - 'motion-sensor-be'
+  - 'motion-sensor-firmware'

@@ -1,0 +1,35 @@
+# Env
+.env
+
+# Swift
+motion-sensor-app/.build/
+motion-sensor-app/Pods/
+motion-sensor-app/*.xcworkspace/
+motion-sensor-app/.swiftpm/
+motion-sensor-app/DerivedData/
+motion-sensor-app/Build/
+
+# Python Backend
+motion-sensor-be/venv/
+motion-sensor-be/__pycache__/
+motion-sensor-be/**/__pycache__/
+motion-sensor-be/*.pyc
+motion-sensor-be/.pytest_cache/
+
+# PlatformIO
+motion-sensor-firmware/.pio/
+motion-sensor-firmware/build/
+.platformio/
+
+# pnpm
+node_modules/
+pnpm-lock.yaml
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# macOS
+.DS_Store
