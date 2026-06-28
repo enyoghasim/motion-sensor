@@ -37,3 +37,10 @@ class MQTTClient:
         topic = f"motion-sensor/{device_id}/status"
         payload = json.dumps({"device_id": device_id, "status": status})
         self.client.publish(topic, payload)
+
+
+mqtt_client = MQTTClient(client_id="motion-sensor-backend")
+
+
+def get_mqtt_client() -> MQTTClient:
+    return mqtt_client

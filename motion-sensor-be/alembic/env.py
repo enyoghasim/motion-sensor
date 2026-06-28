@@ -9,7 +9,7 @@ from alembic import context
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from app import models  # noqa: F401  (registers tables on Base.metadata)
-from app.database import Base
+from app.core.database import Base
 
 config = context.config
 

@@ -10,7 +10,7 @@
     "build:firmware": "cd motion-sensor-firmware && platformio run",
     "upload:firmware": "cd motion-sensor-firmware && platformio run -t upload",
     "clean": "cd motion-sensor-firmware && platformio run -t clean",
-    "docker:up": "docker-compose up",
+    "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "docker:generate": "docker-compose exec motion-sensor-be alembic revision --autogenerate -m",

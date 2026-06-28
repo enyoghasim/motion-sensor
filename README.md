@@ -34,10 +34,14 @@ pnpm run docker:up
 # or: docker compose up -d
 ```
 
-This starts three containers:
+This starts five containers:
 - **PostgreSQL** — `localhost:${POSTGRES_HOST_PORT}` (default `5432`)
 - **Mosquitto (MQTT)** — `localhost:${MQTT_HOST_PORT}` (default `1883`)
+- **Redis** — `localhost:${REDIS_HOST_PORT}` (default `6379`), Celery's broker
 - **Backend API** — `http://localhost:${BACKEND_HOST_PORT}` (default `8080`)
+- **Celery worker** — sends queued emails, no exposed port
+
+Emails need a real `RESEND_API_KEY` in `.env` to actually deliver (get one at https://resend.com/api-keys) — without it, the worker will retry and log the auth error instead of crashing.
 
 Alembic migrations run automatically on startup (see `motion-sensor-be/Dockerfile`'s `CMD`) — the database schema is always up to date with no manual SQL.
 
@@ -78,6 +82,23 @@ Point the app's API base URL at `http://localhost:8080` (or your machine's LAN I
 
 FastAPI + SQLAlchemy + Alembic, talking to Postgres and the MQTT broker. Always run it via Docker (see [Setup](#setup-docker) above) unless you have a specific reason not to.
 
+Layered structure, request flows top to bottom:
+```
+app/
+├── routers/       # HTTP layer — request/response, no business logic
+├── services/      # business logic — orchestrates repositories + MQTT
+├── repositories/   # data access — raw DB queries, nothing else
+├── models/         # SQLAlchemy ORM — what's actually in Postgres
+├── schemas/        # Pydantic — request/response JSON shapes
+├── core/           # shared infra: database.py (engine/session), mqtt_client.py, mailer.py (Resend), templates.py (Jinja2), celery_app.py
+├── tasks/          # Celery tasks (e.g. sending queued emails)
+└── main.py         # app instance, lifespan, router registration
+```
+
+**Email**: registering a device queues a welcome email via Celery/Redis (`app/tasks/email_tasks.py`) instead of sending inline — the HTTP request returns immediately, and a separate worker container picks the task up from Redis and sends it through [Resend](https://resend.com). Templates are plain HTML/CSS in `app/templates/` (Jinja2 for `{{ variables }}`, [premailer](https://github.com/peterbe/premailer) inlines the CSS at send-time since most email clients ignore `<style>` blocks) — no Node.js/MJML toolchain involved.
+
+Changing a template or task doesn't need a rebuild (same bind-mounted volume as the API), but the worker has no live-reload like uvicorn does — run `docker compose restart motion-sensor-worker` after editing anything under `app/tasks/` or `app/templates/`.
+
 **API Endpoints:**
 - `GET /health` - Service health
 - `GET /api/devices` - List devices
@@ -86,7 +107,7 @@ FastAPI + SQLAlchemy + Alembic, talking to Postgres and the MQTT broker. Always 
 - `GET /api/motion/{device_id}/history` - Motion history
 - `POST /api/motion/report` - Report motion event
 
-**Schema changes:** edit `motion-sensor-be/app/models.py`, then generate and apply a migration.
+**Schema changes:** edit the relevant model in `motion-sensor-be/app/models/`, then generate and apply a migration.
 
 Against the running Docker stack (the default path):
 ```bash

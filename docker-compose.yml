@@ -34,6 +34,19 @@ services:
     networks:
       - motion-sensor-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: motion-sensor-redis
+    ports:
+      - "${REDIS_HOST_PORT}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - motion-sensor-network
+
   motion-sensor-be:
     build: ./motion-sensor-be
     container_name: motion-sensor-backend
@@ -41,6 +54,8 @@ services:
       postgres:
         condition: service_healthy
       mosquitto:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "${BACKEND_HOST_PORT}:8080"
@@ -51,6 +66,26 @@ services:
       - MQTT_BROKER_HOST=${MQTT_BROKER_HOST}
       - MQTT_BROKER_PORT=${MQTT_BROKER_PORT}
       - WATCHFILES_FORCE_POLLING=true
+      - REDIS_URL=redis://redis:6379/0
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL}
+    restart: unless-stopped
+    networks:
+      - motion-sensor-network
+
+  motion-sensor-worker:
+    build: ./motion-sensor-be
+    container_name: motion-sensor-worker
+    command: celery -A app.core.celery_app worker --loglevel=info
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./motion-sensor-be:/app
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL}
     restart: unless-stopped
     networks:
       - motion-sensor-network
