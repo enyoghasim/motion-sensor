@@ -1,6 +1,7 @@
 import os
 import sys
 from logging.config import fileConfig
+from dotenv import load_dotenv
 
 from sqlalchemy import engine_from_config, pool
 
@@ -11,14 +12,17 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from app import models  # noqa: F401  (registers tables on Base.metadata)
 from app.core.database import Base
 
+load_dotenv()
+
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/motion_sensor")
 config.set_main_option(
     "sqlalchemy.url",
-    os.getenv("DATABASE_URL", "postgresql://postgres:postgres@postgres:5432/motion_sensor"),
+    db_url.replace("+asyncpg", ""),
 )
 
 target_metadata = Base.metadata

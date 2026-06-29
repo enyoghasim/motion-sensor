@@ -11,3 +11,7 @@ resend
 celery==5.4.0
 redis==5.2.1
 premailer==3.10.0
+bcrypt==4.2.1
+asyncpg==0.30.0
+greenlet==3.0.3
+sqladmin==0.17.0

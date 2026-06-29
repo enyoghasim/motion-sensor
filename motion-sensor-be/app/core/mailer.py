@@ -1,7 +1,11 @@
 import os
+import logging
+from dotenv import load_dotenv
 
 import resend
 from premailer import transform
+
+load_dotenv()
 
 resend.api_key = os.getenv("RESEND_API_KEY", "")
 

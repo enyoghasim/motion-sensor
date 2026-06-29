@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import schemas
 from app.core.database import get_db
@@ -12,21 +12,21 @@ router = APIRouter(prefix="/api/devices")
 
 
 def get_device_service(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     mqtt_client: MQTTClient = Depends(get_mqtt_client),
 ) -> DeviceService:
     return DeviceService(DeviceRepository(db), mqtt_client, EmailService())
 
 
 @router.get("", response_model=list[schemas.DeviceOut])
-def get_devices(service: DeviceService = Depends(get_device_service)):
-    return service.list_devices()
+async def get_devices(service: DeviceService = Depends(get_device_service)):
+    return await service.list_devices()
 
 
 @router.post("/register")
-def register_device(
+async def register_device(
     device: schemas.DeviceRegister,
     service: DeviceService = Depends(get_device_service),
 ):
-    service.register_device(device.device_id, device.name, device.owner_email)
+    await service.register_device(device.device_id, device.name, device.owner_email)
     return {"status": "registered", "device_id": device.device_id}
