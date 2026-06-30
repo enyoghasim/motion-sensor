@@ -10,3 +10,11 @@ def send_welcome_email(self, to_email: str, device_id: str, device_name: str):
         send_email(to_email, "Your device is online", html)
     except Exception as exc:
         raise self.retry(exc=exc)
+
+@celery_app.task(name="send_otp_email", bind=True, max_retries=5, default_retry_delay=30)
+def send_otp_email(self, to_email: str, otp: str):
+    try:
+        html = render_template("otp.html", otp=otp)
+        send_email(to_email, "Your Verification Code", html)
+    except Exception as exc:
+        raise self.retry(exc=exc)

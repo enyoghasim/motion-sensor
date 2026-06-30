@@ -34,3 +34,21 @@ class UserResponse(BaseModel):
     email: EmailStr
     name: str
     email_verified: bool
+
+class OTPRequest(BaseModel):
+    scope: str
+
+class OTPVerify(BaseModel):
+    otp: str
+    scope: str
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordVerify(BaseModel):
+    request_id: str
+    otp: str
+    new_password: Password
+
+class ResetPasswordResponse(BaseModel):
+    request_id: str
