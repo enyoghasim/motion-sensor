@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'media',
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
@@ -11,10 +10,16 @@ module.exports = {
         danger: { hover: '#ef4444', soft: { hover: '#fee2e2' } },
       },
       fontFamily: {
-        display: ['Spline Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-        rounded: ['SF Pro Rounded', 'Hiragino Maru Gothic ProN', 'Meiryo', 'MS PGothic', 'sans-serif'],
-        serif: ['Georgia', 'Times New Roman', 'serif'],
+        sans: ['Google Sans'],
+        'google-sans': ['Google Sans'],
+        'google-sans-thin': ['Google Sans Thin'],
+        'google-sans-extralight': ['Google Sans ExtraLight'],
+        'google-sans-light': ['Google Sans Light'],
+        'google-sans-medium': ['Google Sans Medium'],
+        'google-sans-semibold': ['Google Sans SemiBold'],
+        'google-sans-bold': ['Google Sans Bold'],
+        'google-sans-extrabold': ['Google Sans ExtraBold'],
+        'google-sans-black': ['Google Sans Black'],
       },
     },
   },

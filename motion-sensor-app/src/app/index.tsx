@@ -1,0 +1,20 @@
+import OverlayVideo from "@/modules/auth/components/overlay-video";
+import { Button } from "@/modules/shared/components/button";
+import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+const AppIndex = () => {
+  return (
+    <>
+      <OverlayVideo />
+      <SafeAreaView className="flex-1 justify-end">
+        <View className="gap-5 p-5 mb-24">
+          <Button title="Log in" />
+          <Button title="Create New Account" variant="outline-dark" />
+        </View>
+      </SafeAreaView>
+    </>
+  );
+};
+
+export default AppIndex;
