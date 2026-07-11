@@ -53,7 +53,6 @@ export default function LoginScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Email"
-                placeholder="user@example.com"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -70,7 +69,6 @@ export default function LoginScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Password"
-                placeholder="Enter your password"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}

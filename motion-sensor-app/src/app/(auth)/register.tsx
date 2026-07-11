@@ -54,7 +54,6 @@ export default function RegisterScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Full Name"
-                placeholder="John Doe"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -70,7 +69,6 @@ export default function RegisterScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Email"
-                placeholder="user@example.com"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -87,7 +85,6 @@ export default function RegisterScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Password"
-                placeholder="Enter your password"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}

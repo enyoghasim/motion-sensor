@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
+    "@hugeicons/core-free-icons": "^4.2.2",
+    "@hugeicons/react-native": "^1.0.15",
     "@tanstack/react-query": "^5.101.2",
     "axios": "^1.18.1",
     "clsx": "^2.1.1",
