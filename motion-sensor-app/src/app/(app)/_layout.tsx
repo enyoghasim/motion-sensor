@@ -4,6 +4,7 @@ import {
   UserCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, IconSvgElement } from "@hugeicons/react-native";
+import * as Haptics from "expo-haptics";
 import { Redirect } from "expo-router";
 import {
   TabList,
@@ -58,19 +59,31 @@ type TabButtonProps = TabTriggerSlotProps & {
   children: string;
 };
 
-function TabButton({ icon, children, isFocused, ...props }: TabButtonProps) {
+function TabButton({
+  icon,
+  children,
+  isFocused,
+  onPress,
+  ...props
+}: TabButtonProps) {
   const progress = useDerivedValue(
     () => withTiming(isFocused ? 1 : 0, { duration: 150 }),
     [isFocused],
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: interpolate(progress.value, [0, 1], [1, 1.15]) }],
+    transform: [{ scale: interpolate(progress.value, [0, 1], [1, 1.05]) }],
   }));
+
+  const handlePress: TabButtonProps["onPress"] = (event) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress?.(event);
+  };
 
   return (
     <Pressable
       {...props}
+      onPress={handlePress}
       className="flex-1 items-center justify-center gap-1 py-2"
       style={({ pressed }) => pressed && { opacity: 0.7 }}
     >
@@ -81,10 +94,10 @@ function TabButton({ icon, children, isFocused, ...props }: TabButtonProps) {
         <HugeiconsIcon
           icon={icon}
           size={24}
-          strokeWidth={2}
+          strokeWidth={2.2}
           color={isFocused ? "#ffffff" : "#71717a"}
         />
-        <ThemedText variant="xs" className={cn(!isFocused && "text-[#71717a]")}>
+        <ThemedText variant="sm" className={cn(!isFocused && "text-[#71717a]")}>
           {children}
         </ThemedText>
       </Animated.View>
