@@ -39,7 +39,7 @@ export default function AppLayout() {
       <TabSlot style={{ flex: 1 }} />
       <TabList asChild>
         <CustomTabList>
-          <TabTrigger name="index" href="/" asChild>
+          <TabTrigger name="(spaces)" href="/" asChild>
             <TabButton icon={Home01Icon}>Space</TabButton>
           </TabTrigger>
           <TabTrigger name="automation" href="/automation" asChild>

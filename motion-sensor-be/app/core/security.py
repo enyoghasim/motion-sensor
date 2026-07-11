@@ -38,7 +38,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
             detail="Invalid or expired session token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    result = await db.execute(select(User).filter(User.id == int(user_id_str)))  # type: ignore
+    result = await db.execute(select(User).filter(User.id == int(user_id_str)))
     user = result.scalars().first()
     if not user:
         raise HTTPException(

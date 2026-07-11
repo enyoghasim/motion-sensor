@@ -1,18 +1,37 @@
+#include "constants.h"
+#include "hardware_init.h"
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+void setup()
+{
+    Serial.begin(115200);
+    initHardware(
+        Pins::LED,
+        Pins::BUTTON,
+        Pins::SENSOR,
+        Pins::RELAY,
+        Pins::SDA,
+        Pins::SCL,
+        Display::SCREEN_I2C_ADDRESS);
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+    // showSpinner(Display::SCREEN_WIDTH, Display::SCREEN_HEIGHT);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop()
+{
+    // deviceDisplay.clearDisplay();
+    // deviceDisplay.setTextSize(1);
+    // deviceDisplay.setTextColor(SSD1306_WHITE);
+    // deviceDisplay.setCursor(0, 0);
+    // deviceDisplay.println("Running.hh..");
+    // deviceDisplay.display();
+    // delay(1000);
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
+//   deviceDisplay.clearDisplay();
+//   deviceDisplay.setTextSize(1);
+//   deviceDisplay.setTextColor(SSD1306_WHITE);
+//   deviceDisplay.setCursor(0, 0);
+//   deviceDisplay.println("OLED init OK");
+//   deviceDisplay.println("Starting...");
+//   deviceDisplay.display();

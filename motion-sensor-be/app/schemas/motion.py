@@ -14,3 +14,7 @@ class MotionOut(BaseModel):
     device_id: str
     motion_detected: bool
     timestamp: datetime
+
+class MotionPaginatedResponse(BaseModel):
+    items: list[MotionOut]
+    next_cursor: datetime | None

@@ -10,7 +10,7 @@ Motion Sensor System with a Swift iOS app, a Python FastAPI backend, and ESP32 f
 | [motion-sensor-be](motion-sensor-be/) | Backend API: FastAPI + PostgreSQL (SQLAlchemy + Alembic) + MQTT |
 | [motion-sensor-firmware](motion-sensor-firmware/) | ESP32 firmware (PlatformIO) |
 
-**Docker is the default way to run this project.** The backend, Postgres, and the MQTT broker all run as containers via `docker-compose.yml` — you should not need to install Python, Postgres, or Mosquitto locally for normal development.
+**The infrastructure (Postgres, Redis, Mosquitto) runs via Docker.** The backend and Celery worker run locally using a Python virtual environment.
 
 ## Setup (Docker)
 
@@ -27,27 +27,41 @@ cp .env.example .env
 
 `.env` holds every DB/MQTT/port value the stack needs (`POSTGRES_DB`, `POSTGRES_USER`, `MQTT_BROKER_HOST`, etc.) — see [.env.example](.env.example) for the full list and what each one controls. `docker compose` loads it automatically; nothing else to configure. The defaults work out of the box for local dev.
 
-### 2. Start everything
+### 2. Start the infrastructure
 
 ```bash
-pnpm run docker:up
-# or: docker compose up -d
+docker compose up -d
 ```
 
-This starts five containers:
+This starts three containers:
 - **PostgreSQL** — `localhost:${POSTGRES_HOST_PORT}` (default `5432`)
 - **Mosquitto (MQTT)** — `localhost:${MQTT_HOST_PORT}` (default `1883`)
 - **Redis** — `localhost:${REDIS_HOST_PORT}` (default `6379`), Celery's broker
-- **Backend API** — `http://localhost:${BACKEND_HOST_PORT}` (default `8080`)
-- **Celery worker** — sends queued emails, no exposed port
+
+### 3. Setup and start the Backend API
+
+Create a virtual environment, install dependencies, and run migrations:
+
+```bash
+cd motion-sensor-be
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+alembic upgrade head
+```
+
+### 4. Start the API and Celery Worker
+
+You can run both the API and the worker concurrently using the included script:
+
+```bash
+cd motion-sensor-be
+./start_local.sh
+```
 
 Emails need a real `RESEND_API_KEY` in `.env` to actually deliver (get one at https://resend.com/api-keys) — without it, the worker will retry and log the auth error instead of crashing.
 
-Alembic migrations run automatically on startup (see `motion-sensor-be/Dockerfile`'s `CMD`) — the database schema is always up to date with no manual SQL.
-
-The backend container mounts `motion-sensor-be/` as a live volume and runs uvicorn with `--reload`, so editing Python source on your host restarts the server inside the container automatically — no rebuild needed. You only need `docker compose build` again when you change `requirements.txt` or the `Dockerfile`.
-
-### 3. Verify it's running
+### 5. Verify it's running
 
 ```bash
 curl http://localhost:8080/health
@@ -59,15 +73,9 @@ FastAPI also gives you interactive API docs for free at http://localhost:8080/do
 ### Other commands
 
 ```bash
-pnpm run docker:logs                     # tail logs from all services
-pnpm run docker:generate "add a column"  # generate a migration from your models (note: no `--`, see below)
-pnpm run docker:migrate                  # apply pending migrations to the running stack
-pnpm run docker:down                     # stop everything
+docker compose logs -f                   # tail logs from infrastructure services
+docker compose down                      # stop everything
 ```
-
-> `docker:generate` takes the migration message as a plain extra argument — run it as `pnpm run docker:generate "message"`, **not** `pnpm run docker:generate -- "message"`. Unlike npm, pnpm forwards a literal `--` straight into the command, which breaks Alembic's `-m` flag.
-
----
 
 ## motion-sensor-app (iOS)
 
@@ -80,7 +88,7 @@ Point the app's API base URL at `http://localhost:8080` (or your machine's LAN I
 
 ## motion-sensor-be (Backend)
 
-FastAPI + SQLAlchemy + Alembic, talking to Postgres and the MQTT broker. Always run it via Docker (see [Setup](#setup-docker) above) unless you have a specific reason not to.
+FastAPI + SQLAlchemy + Alembic, talking to Postgres and the MQTT broker. Run locally via virtual environment (see [Setup](#setup-docker) above).
 
 Layered structure, request flows top to bottom:
 ```
@@ -97,7 +105,7 @@ app/
 
 **Email**: registering a device queues a welcome email via Celery/Redis (`app/tasks/email_tasks.py`) instead of sending inline — the HTTP request returns immediately, and a separate worker container picks the task up from Redis and sends it through [Resend](https://resend.com). Templates are plain HTML/CSS in `app/templates/` (Jinja2 for `{{ variables }}`, [premailer](https://github.com/peterbe/premailer) inlines the CSS at send-time since most email clients ignore `<style>` blocks) — no Node.js/MJML toolchain involved.
 
-Changing a template or task doesn't need a rebuild (same bind-mounted volume as the API), but the worker has no live-reload like uvicorn does — run `docker compose restart motion-sensor-worker` after editing anything under `app/tasks/` or `app/templates/`.
+Changing a template or task requires restarting the celery worker process. The uvicorn server will automatically reload when editing anything under `app/`.
 
 **API Endpoints:**
 - `GET /health` - Service health
@@ -109,11 +117,7 @@ Changing a template or task doesn't need a rebuild (same bind-mounted volume as 
 
 **Schema changes:** edit the relevant model in `motion-sensor-be/app/models/`, then generate and apply a migration.
 
-Against the running Docker stack (the default path):
-```bash
-pnpm run docker:generate "describe your change"
-pnpm run docker:migrate
-```
+
 
 Or locally against `motion-sensor-be/`:
 ```bash
@@ -122,21 +126,7 @@ alembic revision --autogenerate -m "describe your change"
 alembic upgrade head
 ```
 
-<details>
-<summary>Running locally without Docker (advanced, not the default path)</summary>
 
-```bash
-cd motion-sensor-be
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/motion_sensor
-export MQTT_BROKER_HOST=localhost
-export MQTT_BROKER_PORT=1883
-alembic upgrade head
-uvicorn app.main:app --reload --port 8080
-```
-This still needs Postgres and Mosquitto reachable somewhere (e.g. leave those two running via `docker compose up postgres mosquitto`).
-</details>
 
 ## motion-sensor-firmware (ESP32)
 

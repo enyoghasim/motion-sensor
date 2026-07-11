@@ -37,7 +37,7 @@ export default function RegisterScreen() {
   const onSubmit = (data: RegisterValues) => {
     registerMutation.mutate(data, {
       onSuccess: () => {
-        router.replace("/(app)");
+        router.replace("/(app)/(spaces)");
       },
       onError: (error: any) => {
         console.error("Registration failed", error);

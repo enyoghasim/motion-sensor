@@ -179,12 +179,14 @@ export const Input = forwardRef<TextInput, InputProps>(
               onBlur?.(e);
             }}
             {...textInputProps}
+            textAlignVertical="center"
             style={{
               position: "absolute",
               left: 0,
               right: isPasswordField ? iconSize + 12 : 0,
               bottom: 0,
               height: inputHeight,
+              paddingVertical: 0,
               fontSize,
               color: palette.text,
             }}

@@ -21,6 +21,10 @@ class RegisterUser(BaseModel):
     password: Password
     name: str = Field(min_length=2, max_length=100)
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: Password
+
 class LoginUser(BaseModel):
     email: EmailStr
     password: Password

@@ -30,10 +30,10 @@ export default function LoginScreen() {
   const onSubmit = (data: LoginValues) => {
     loginMutation.mutate(data, {
       onSuccess: () => {
-        router.replace("/(app)");
+        router.replace("/(app)/(spaces)");
       },
       onError: (error: any) => {
-        router.replace("/(app)");
+        router.replace("/(app)/(spaces)");
 
         console.error("Login failed", error);
       },

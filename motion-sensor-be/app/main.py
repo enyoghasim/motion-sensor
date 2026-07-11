@@ -7,7 +7,7 @@ from sqladmin import Admin
 
 from app.core.mqtt_client import mqtt_client
 from app.core.database import engine
-from app.routers import devices, health, motion, auth, user
+from app.routers import devices, health, motion, auth, user, mqtt
 from app.admin import UserAdmin, DeviceAdmin, MotionEventAdmin
 
 
@@ -36,4 +36,5 @@ app.include_router(devices.router)
 app.include_router(motion.router)
 app.include_router(auth.router)
 app.include_router(user.router)
+app.include_router(mqtt.router)
 

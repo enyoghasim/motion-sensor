@@ -6,7 +6,7 @@ import random
 import string
 import uuid
 
-from app.schemas.auth import RegisterUser, LoginUser, Token, OTPRequest, OTPVerify, ResetPasswordRequest, ResetPasswordVerify, ResetPasswordResponse
+from app.schemas.auth import RegisterUser, LoginUser, Token, OTPRequest, OTPVerify, ResetPasswordRequest, ResetPasswordVerify, ResetPasswordResponse, ChangePasswordRequest
 from app.core.database import get_db
 from app.models.user import User
 from app.core.security import get_password_hash, verify_password, create_session_token, get_current_user, oauth2_scheme
@@ -36,7 +36,7 @@ router = APIRouter(
     responses={422: {"model": ErrorResponseModel, "description": "Validation Error"}}
 )
 
-@router.post("/register", response_model=SuccessResponseModel[Token])
+@router.post("/signup", response_model=SuccessResponseModel[Token])
 async def register(user_in: RegisterUser, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).filter(User.email == user_in.email))
     user = result.scalars().first()
@@ -60,6 +60,7 @@ async def register(user_in: RegisterUser, db: AsyncSession = Depends(get_db)):
     
     otp, hashed_otp = await generate_and_hash_otp()
     await redis_client.setex(f"otp:{db_user.id}:email_verification", 600, hashed_otp)
+    EmailService().enqueue_welcome_email(db_user.email, db_user.name)
     EmailService().enqueue_otp_email(db_user.email, otp)
     
     return success_response(
@@ -67,7 +68,7 @@ async def register(user_in: RegisterUser, db: AsyncSession = Depends(get_db)):
         data=Token(access_token=token).model_dump()
     )
 
-@router.post("/login", response_model=SuccessResponseModel[Token])
+@router.post("/signin", response_model=SuccessResponseModel[Token])
 async def login(user_in: LoginUser, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).filter(User.email == user_in.email))
     user = result.scalars().first()
@@ -138,6 +139,26 @@ async def verify_otp(
     
     return success_response(message="OTP verified successfully")
 
+@router.post("/change-password", response_model=SuccessResponseModel[None])
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    is_valid = await asyncio.to_thread(verify_password, request.current_password, current_user.password)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect current password."
+        )
+        
+    new_hashed_password = await asyncio.to_thread(get_password_hash, request.new_password)
+    current_user.password = new_hashed_password
+    db.add(current_user)
+    await db.commit()
+    
+    return success_response(message="Password has been changed successfully.")
+
 @router.post("/reset-password/request", response_model=SuccessResponseModel[ResetPasswordResponse])
 async def reset_password_request(
     request: ResetPasswordRequest,
@@ -204,7 +225,7 @@ async def reset_password_verify(
     
     return success_response(message="Password has been reset successfully.")
 
-@router.post("/logout", response_model=SuccessResponseModel[None])
+@router.post("/signout", response_model=SuccessResponseModel[None])
 async def logout(token: str = Depends(oauth2_scheme)):
     await redis_client.delete(f"session:{token}")
     return success_response(message="Successfully logged out")

@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+        font-family: "Courier New", Courier, monospace;
+      }
+      .wrapper {
+        max-width: 480px;
+        margin: 24px auto;
+        background-color: #ffffff;
+        border: 4px solid #000000;
+      }
+      .header {
+        text-align: center;
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: #000000;
+        padding: 24px 16px 16px;
+      }
+      .divider {
+        border-top: 4px solid #000000;
+        margin: 0 16px;
+      }
+      .body-text {
+        padding: 24px 24px 8px;
+        color: #000000;
+      }
+      .title {
+        font-size: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0 0 16px;
+      }
+      .copy {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0;
+      }
+      .status-box {
+        margin: 8px 24px 24px;
+        border: 4px solid #000000;
+        background-color: #ffe600;
+        padding: 16px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #000000;
+      }
+      .footer {
+        text-align: center;
+        font-size: 11px;
+        letter-spacing: 1px;
+        color: #000000;
+        padding: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="header">MOTION-SENSOR</div>
+      <div class="divider"></div>
+      <div class="body-text">
+        <p class="title">Welcome.</p>
+        <p class="copy">
+          Your device <strong>{{ device_name }}</strong> (ID:
+          <strong>{{ device_id }}</strong>) is now registered and reporting in.
+        </p>
+      </div>
+      <div class="status-box">Status: Armed</div>
+      <div class="divider"></div>
+      <div class="footer">MOTION-SENSOR SYSTEM // NO REPLY</div>
+    </div>
+  </body>
+</html>

@@ -10,13 +10,13 @@ class UserAdmin(ModelView, model=User):
     icon = "fa-solid fa-user"
 
 class DeviceAdmin(ModelView, model=Device):
-    column_list = ["id", "device_id", "name", "owner_email", "created_at"]
-    column_searchable_list = ["device_id", "name"]
+    column_list = ["id", "factory_mac", "name", "status", "created_at"]
+    column_searchable_list = ["factory_mac", "name"]
     column_sortable_list = ["id", "created_at"]
     icon = "fa-solid fa-microchip"
 
 class MotionEventAdmin(ModelView, model=MotionEvent):
     column_list = ["id", "device_id", "motion_detected", "timestamp"]
-    column_searchable_list = ["device_id"]
+    column_searchable_list = ["id"]
     column_sortable_list = ["id", "timestamp"]
     icon = "fa-solid fa-person-running"
