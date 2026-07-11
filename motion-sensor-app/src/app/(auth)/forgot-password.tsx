@@ -11,6 +11,7 @@ import {
 import { Button } from "@/modules/shared/components/button";
 import { ErrorMessage } from "@/modules/shared/components/error-message";
 import { Input } from "@/modules/shared/components/input";
+import { ThemedText } from "@/modules/shared/components/themed-text";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft01Icon,
@@ -20,7 +21,7 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type Step = "email" | "reset" | "done";
@@ -106,17 +107,18 @@ export default function ForgotPasswordScreen() {
       <View className="flex-1 px-6 pt-6">
         {step === "email" && (
           <>
-            <Text
+            <ThemedText
               numberOfLines={1}
               adjustsFontSizeToFit
-              className="font-google-sans-bold text-4xl text-white mb-2"
+              variant="title"
+              className="mb-2"
             >
               Reset password
-            </Text>
-            <Text className="font-google-sans text-[#B0B4BA] mb-8">
+            </ThemedText>
+            <ThemedText variant="md" className="text-[#B0B4BA] mb-8">
               Enter the email linked to your account and we'll send you a
               code to reset your password.
-            </Text>
+            </ThemedText>
 
             {requestMutation.error && (
               <ErrorMessage
@@ -157,17 +159,18 @@ export default function ForgotPasswordScreen() {
 
         {step === "reset" && (
           <>
-            <Text
+            <ThemedText
               numberOfLines={1}
               adjustsFontSizeToFit
-              className="font-google-sans-bold text-4xl text-white mb-2"
+              variant="title"
+              className="mb-2"
             >
               Enter code
-            </Text>
-            <Text className="font-google-sans text-[#B0B4BA] mb-8">
+            </ThemedText>
+            <ThemedText variant="md" className="text-[#B0B4BA] mb-8">
               We sent a 6-digit code to {email}. Enter it below along with
               your new password.
-            </Text>
+            </ThemedText>
 
             {verifyMutation.error && (
               <ErrorMessage
@@ -233,9 +236,9 @@ export default function ForgotPasswordScreen() {
                 onPress={onResendCode}
                 disabled={requestMutation.isPending}
               >
-                <Text className="font-google-sans text-white">
+                <ThemedText variant="md">
                   {requestMutation.isPending ? "Sending..." : "Resend code"}
-                </Text>
+                </ThemedText>
               </Pressable>
 
               <Button
@@ -257,13 +260,13 @@ export default function ForgotPasswordScreen() {
               size={56}
               color="#ffffff"
             />
-            <Text className="font-google-sans-bold text-3xl text-white mt-6 mb-2 text-center">
+            <ThemedText variant="subtitle" className="mt-6 mb-2 text-center">
               Password reset
-            </Text>
-            <Text className="font-google-sans text-[#B0B4BA] text-center mb-8">
+            </ThemedText>
+            <ThemedText variant="md" className="text-[#B0B4BA] text-center mb-8">
               Your password has been reset successfully. You can now sign in
               with your new password.
-            </Text>
+            </ThemedText>
             <Button
               title="Back to Sign In"
               onPress={() => router.replace("/(auth)/login")}

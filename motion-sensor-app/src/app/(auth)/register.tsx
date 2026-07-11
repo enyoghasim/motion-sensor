@@ -6,6 +6,7 @@ import {
 import { Button } from "@/modules/shared/components/button";
 import { ErrorMessage } from "@/modules/shared/components/error-message";
 import { Input } from "@/modules/shared/components/input";
+import { ThemedText } from "@/modules/shared/components/themed-text";
 import { cn } from "@/modules/shared/lib/util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
@@ -13,7 +14,7 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterScreen() {
@@ -57,13 +58,14 @@ export default function RegisterScreen() {
       </View>
 
       <View className="flex-1 px-6 pt-6">
-        <Text
+        <ThemedText
           numberOfLines={1}
           adjustsFontSizeToFit
-          className="font-google-sans-bold text-4xl text-white mb-8"
+          variant="title"
+          className="mb-8"
         >
           Create account
-        </Text>
+        </ThemedText>
 
         {registerMutation.error && (
           <ErrorMessage
@@ -137,16 +139,16 @@ export default function RegisterScreen() {
                 <HugeiconsIcon icon={Tick02Icon} size={14} color="#000000" />
               )}
             </View>
-            <Text className="flex-1 font-google-sans text-[#B0B4BA]">
+            <ThemedText variant="md" className="flex-1 text-[#B0B4BA]">
               I have read and agree to the{" "}
-              <Text className="font-google-sans-medium text-white">
+              <ThemedText variant="md" weight="medium">
                 Terms of Use
-              </Text>{" "}
+              </ThemedText>{" "}
               &{" "}
-              <Text className="font-google-sans-medium text-white">
+              <ThemedText variant="md" weight="medium">
                 Privacy Policy
-              </Text>
-            </Text>
+              </ThemedText>
+            </ThemedText>
           </Pressable>
 
           <Button
@@ -160,11 +162,13 @@ export default function RegisterScreen() {
       </View>
 
       <View className="flex-row justify-center pb-6 gap-2">
-        <Text className="font-google-sans text-[#B0B4BA]">
+        <ThemedText variant="md" className="text-[#B0B4BA]">
           Already have an account?
-        </Text>
+        </ThemedText>
         <Link href="/(auth)/login" asChild>
-          <Text className="font-google-sans-medium text-white">Sign In</Text>
+          <ThemedText variant="md" weight="medium">
+            Sign In
+          </ThemedText>
         </Link>
       </View>
     </SafeAreaView>

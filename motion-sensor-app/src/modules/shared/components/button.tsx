@@ -1,12 +1,12 @@
 import { forwardRef } from "react";
 import {
   ActivityIndicator,
-  Text,
   TouchableOpacity,
   TouchableOpacityProps,
   View,
 } from "react-native";
 import { cn } from "../lib/util";
+import { ThemedText } from "./themed-text";
 
 type ButtonVariant = "light" | "outline-light" | "outline-dark" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
@@ -86,16 +86,17 @@ export const Button = forwardRef<View, ButtonProps>(
           <ActivityIndicator color={spinnerColors[variant]} />
         ) : (
           title && (
-            <Text
+            <ThemedText
+              weight="semibold"
               className={cn(
-                "text-center font-google-sans-semibold",
+                "text-center",
                 textSizeStyles[size],
                 textVariantStyles[variant],
                 textClassName,
               )}
             >
               {title}
-            </Text>
+            </ThemedText>
           )
         )}
       </TouchableOpacity>

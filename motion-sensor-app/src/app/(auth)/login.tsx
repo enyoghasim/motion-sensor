@@ -3,12 +3,13 @@ import { loginSchema, LoginValues } from "@/modules/auth/validations/auth";
 import { Button } from "@/modules/shared/components/button";
 import { ErrorMessage } from "@/modules/shared/components/error-message";
 import { Input } from "@/modules/shared/components/input";
+import { ThemedText } from "@/modules/shared/components/themed-text";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { Link, router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
@@ -32,6 +33,8 @@ export default function LoginScreen() {
         router.replace("/(app)");
       },
       onError: (error: any) => {
+        router.replace("/(app)");
+
         console.error("Login failed", error);
       },
     });
@@ -50,13 +53,14 @@ export default function LoginScreen() {
       </View>
 
       <View className="flex-1 px-6 pt-6">
-        <Text
+        <ThemedText
           numberOfLines={1}
           adjustsFontSizeToFit
-          className="font-google-sans-bold text-4xl text-white mb-8"
+          variant="title"
+          className="mb-8"
         >
           Welcome back
-        </Text>
+        </ThemedText>
 
         {loginMutation.error && (
           <ErrorMessage
@@ -103,9 +107,9 @@ export default function LoginScreen() {
             className="self-end"
             onPress={() => router.push("/(auth)/forgot-password")}
           >
-            <Text className="font-google-sans text-lg text-white mt-5">
+            <ThemedText variant="lg" className="mt-5">
               Forgot password?
-            </Text>
+            </ThemedText>
           </Pressable>
 
           <Button
@@ -118,13 +122,13 @@ export default function LoginScreen() {
       </View>
 
       <View className="flex-row justify-center pb-6 gap-2">
-        <Text className="font-google-sans text-[#B0B4BA] text-lg">
+        <ThemedText variant="lg" className="text-[#B0B4BA]">
           Don't have an account?
-        </Text>
+        </ThemedText>
         <Link href="/(auth)/register" asChild>
-          <Text className="font-google-sans-medium text-white text-lg">
+          <ThemedText variant="lg" weight="medium">
             Sign Up
-          </Text>
+          </ThemedText>
         </Link>
       </View>
     </SafeAreaView>

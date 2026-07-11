@@ -1,4 +1,5 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { ThemedText } from "./themed-text";
 
 type ErrorMessageProps = {
   message?: string;
@@ -8,9 +9,9 @@ type ErrorMessageProps = {
 export function ErrorMessage({ message, fallback }: ErrorMessageProps) {
   return (
     <View className="bg-red-900/20 p-3 rounded-lg border border-red-900/50 mb-4">
-      <Text className="font-google-sans text-sm text-red-400">
+      <ThemedText variant="sm" className="text-red-400">
         {message || fallback}
-      </Text>
+      </ThemedText>
     </View>
   );
 }

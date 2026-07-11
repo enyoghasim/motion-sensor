@@ -1,7 +1,7 @@
 import { ViewIcon, ViewOffSlashIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { forwardRef, useState } from "react";
-import { Pressable, Text, TextInput, TextInputProps, View } from "react-native";
+import { Pressable, TextInput, TextInputProps, View } from "react-native";
 import Animated, {
   interpolate,
   interpolateColor,
@@ -10,6 +10,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { cn } from "../lib/util";
+import { ThemedText } from "./themed-text";
 
 type InputVariant = "dark" | "light";
 type InputSize = "sm" | "md" | "lg";
@@ -209,7 +210,9 @@ export const Input = forwardRef<TextInput, InputProps>(
           />
         </View>
         {error && (
-          <Text className="font-google-sans text-red-500">{error}</Text>
+          <ThemedText variant="sm" className="text-red-500">
+            {error}
+          </ThemedText>
         )}
       </View>
     );
