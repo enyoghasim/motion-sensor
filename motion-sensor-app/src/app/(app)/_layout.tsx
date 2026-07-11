@@ -59,11 +59,12 @@ type TabButtonProps = TabTriggerSlotProps & {
 };
 
 function TabButton({ icon, children, isFocused, ...props }: TabButtonProps) {
-  const progress = useDerivedValue(() => withTiming(isFocused ? 1 : 0, { duration: 150 }), [
-    isFocused,
-  ]);
+  const progress = useDerivedValue(
+    () => withTiming(isFocused ? 1 : 0, { duration: 150 }),
+    [isFocused],
+  );
 
-  const iconAnimatedStyle = useAnimatedStyle(() => ({
+  const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: interpolate(progress.value, [0, 1], [1, 1.15]) }],
   }));
 
@@ -73,12 +74,20 @@ function TabButton({ icon, children, isFocused, ...props }: TabButtonProps) {
       className="flex-1 items-center justify-center gap-1 py-2"
       style={({ pressed }) => pressed && { opacity: 0.7 }}
     >
-      <Animated.View style={iconAnimatedStyle}>
-        <HugeiconsIcon icon={icon} size={24} color={isFocused ? "#ffffff" : "#71717a"} />
+      <Animated.View
+        style={animatedStyle}
+        className="items-center justify-center gap-1"
+      >
+        <HugeiconsIcon
+          icon={icon}
+          size={24}
+          strokeWidth={2}
+          color={isFocused ? "#ffffff" : "#71717a"}
+        />
+        <ThemedText variant="xs" className={cn(!isFocused && "text-[#71717a]")}>
+          {children}
+        </ThemedText>
       </Animated.View>
-      <ThemedText variant="xs" className={cn(!isFocused && "text-[#71717a]")}>
-        {children}
-      </ThemedText>
     </Pressable>
   );
 }
