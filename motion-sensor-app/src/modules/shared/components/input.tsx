@@ -1,5 +1,5 @@
-import { HugeiconsIcon } from "@hugeicons/react-native";
 import { ViewIcon, ViewOffSlashIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import { forwardRef, useState } from "react";
 import { Pressable, Text, TextInput, TextInputProps, View } from "react-native";
 import Animated, {
@@ -36,24 +36,24 @@ const sizeStyles: Record<
   sm: {
     containerHeight: 46,
     inputHeight: 30,
-    fontSize: 15,
-    scaleFactor: 11 / 15, // Using scale factor instead of floatedFontSize
+    fontSize: 16,
+    scaleFactor: 11 / 14, // Using scale factor instead of floatedFontSize
     labelIdleTop: 23,
     labelFloatedTop: 2,
   },
   md: {
     containerHeight: 56,
     inputHeight: 36,
-    fontSize: 17,
-    scaleFactor: 12 / 17,
+    fontSize: 18,
+    scaleFactor: 12 / 16,
     labelIdleTop: 28,
     labelFloatedTop: 3,
   },
   lg: {
     containerHeight: 64,
     inputHeight: 40,
-    fontSize: 19,
-    scaleFactor: 13 / 19,
+    fontSize: 20,
+    scaleFactor: 13 / 18,
     labelIdleTop: 33,
     labelFloatedTop: 3,
   },
@@ -209,7 +209,7 @@ export const Input = forwardRef<TextInput, InputProps>(
           />
         </View>
         {error && (
-          <Text className="font-google-sans text-xs text-red-500">{error}</Text>
+          <Text className="font-google-sans text-red-500">{error}</Text>
         )}
       </View>
     );

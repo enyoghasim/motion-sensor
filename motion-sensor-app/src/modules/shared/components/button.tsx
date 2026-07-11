@@ -26,9 +26,9 @@ const sizeStyles: Record<ButtonSize, string> = {
 };
 
 const textSizeStyles: Record<ButtonSize, string> = {
-  sm: "text-base",
-  md: "text-lg",
-  lg: "text-xl",
+  sm: "text-lg",
+  md: "text-xl",
+  lg: "text-2xl",
 };
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -88,7 +88,7 @@ export const Button = forwardRef<View, ButtonProps>(
           title && (
             <Text
               className={cn(
-                "text-center font-google-sans-bold",
+                "text-center font-google-sans-semibold",
                 textSizeStyles[size],
                 textVariantStyles[variant],
                 textClassName,
