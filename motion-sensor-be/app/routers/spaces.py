@@ -23,3 +23,13 @@ async def get_spaces(
 ):
     spaces = await service.get_user_spaces(current_user)
     return success_response(message="Spaces retrieved successfully", data=spaces)
+
+
+@router.post("", response_model=SuccessResponseModel[schemas.SpaceOut])
+async def create_space(
+    request: schemas.SpaceCreate,
+    current_user: User = Depends(get_current_verified_user),
+    service: SpaceService = Depends(get_space_service),
+):
+    space = await service.create_space(current_user, request.name)
+    return success_response(message="Space created successfully", data=space)

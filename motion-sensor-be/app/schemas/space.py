@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SpaceOut(BaseModel):
@@ -7,3 +7,7 @@ class SpaceOut(BaseModel):
     id: int
     name: str
     created_at: datetime
+
+
+class SpaceCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
