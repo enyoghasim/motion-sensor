@@ -2,7 +2,14 @@ import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
-import Animated, { Easing, Keyframe } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  interpolate,
+  Keyframe,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { OrbitingLogo } from './orbiting-logo';
@@ -17,8 +24,12 @@ type AnimatedSplashOverlayProps = {
 
 export function AnimatedSplashOverlay({ ready }: AnimatedSplashOverlayProps) {
   const [laidOut, setLaidOut] = useState(false);
-  const [animate, setAnimate] = useState(false);
   const [visible, setVisible] = useState(true);
+  // 0 = fully shown, 1 = fully exited. Driven directly rather than via an
+  // `entering` transition so the OrbitingLogo underneath never remounts --
+  // it keeps orbiting straight through the fade instead of snapping back
+  // to its rest frame right as the exit starts.
+  const exitProgress = useSharedValue(0);
 
   // Hide the native splash as soon as we've laid out, regardless of whether
   // the auth check is done -- that way the orbiting logo below is what's
@@ -29,45 +40,26 @@ export function AnimatedSplashOverlay({ ready }: AnimatedSplashOverlayProps) {
   }, [laidOut]);
 
   useEffect(() => {
-    if (!laidOut || !ready || animate) return;
-    setAnimate(true);
-  }, [laidOut, ready, animate]);
+    if (!laidOut || !ready) return;
+    exitProgress.value = withTiming(1, { duration: DURATION, easing: Easing.elastic(0.7) }, (finished) => {
+      'worklet';
+      if (finished) {
+        scheduleOnRN(setVisible, false);
+      }
+    });
+  }, [laidOut, ready, exitProgress]);
+
+  const exitStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(exitProgress.value, [0, 0.2, 0.7, 1], [1, 1, 0, 0]),
+  }));
 
   if (!visible) return null;
 
-  const splashKeyframe = new Keyframe({
-    0: {
-      transform: [{ scale: 1 }],
-      opacity: 1,
-    },
-    20: {
-      opacity: 1,
-    },
-    70: {
-      opacity: 0,
-      easing: Easing.elastic(0.7),
-    },
-    100: {
-      opacity: 0,
-      transform: [{ scale: 1 }],
-      easing: Easing.elastic(0.7),
-    },
-  });
-
-  return animate ? (
-    <Animated.View
-      entering={splashKeyframe.duration(DURATION).withCallback((finished) => {
-        'worklet';
-        if (finished) {
-          scheduleOnRN(setVisible, false);
-        }
-      })}
-      style={styles.splashOverlay}>
-      <Image style={styles.image} source={require('@/assets/images/logo.png')} />
-    </Animated.View>
-  ) : (
+  return (
     <View onLayout={() => setLaidOut(true)} style={styles.splashOverlay}>
-      <OrbitingLogo size={96} />
+      <Animated.View style={exitStyle}>
+        <OrbitingLogo size={96} />
+      </Animated.View>
     </View>
   );
 }
