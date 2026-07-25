@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   SharedValue,
-  useAnimatedProps,
+  useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { G, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 const RING_D =
   'M35.6251 0.5C46.127 0.500027 54.6407 9.01369 54.6407 19.5156C54.6407 30.0175 46.127 38.5312 35.6251 38.5312C25.1232 38.5312 16.6095 30.0175 16.6095 19.5156C16.6095 9.01369 25.1232 0.5 35.6251 0.5ZM35.6251 7.85059C29.1827 7.85059 23.9601 13.0732 23.9601 19.5156C23.9601 25.9581 29.1827 31.1807 35.6251 31.1807C42.0675 31.1806 47.2902 25.958 47.2902 19.5156C47.2902 13.0732 42.0675 7.85061 35.6251 7.85059Z';
@@ -25,11 +26,15 @@ const SWOOSH_R_D =
 // "travel" as all three step around it together.
 const CENTER = { x: 35.6251, y: 19.5156 };
 
+// The pieces swing out to ~40 units from CENTER while orbiting (further than
+// their tight 72x56 rest-position bounding box allows), so the viewBox has to
+// be a square generous enough to fit that full swing without clipping.
+const VIEW_BOX_HALF = 42;
+const VIEW_BOX = `${CENTER.x - VIEW_BOX_HALF} ${CENTER.y - VIEW_BOX_HALF} ${VIEW_BOX_HALF * 2} ${VIEW_BOX_HALF * 2}`;
+
 const MOVE_MS = 650;
 const HOLD_MS = 1350;
 const EASING = Easing.inOut(Easing.cubic);
-
-const AnimatedG = Animated.createAnimatedComponent(G);
 
 function useOrbitRotation() {
   const rotation = useSharedValue(0);
@@ -53,23 +58,34 @@ function useOrbitRotation() {
   return rotation;
 }
 
-function OrbitPiece({ d, rotation, fill }: { d: string; rotation: SharedValue<number>; fill: string }) {
-  const animatedProps = useAnimatedProps(() => ({
-    rotation: rotation.value,
+type OrbitPieceProps = {
+  d: string;
+  size: number;
+  color: string;
+  rotation: SharedValue<number>;
+};
+
+// Rendered as a full-size (size x size) SVG canvas -- same as the ring's own
+// canvas -- containing only this one piece, wrapped in a plain RN
+// Animated.View. Rotating that wrapper spins around its own center by
+// default, and since the SVG viewBox is centered exactly on CENTER, that
+// center coincides with the ring's center: rotating the wrapper is
+// equivalent to rotating just this piece around the ring, using React
+// Native's ordinary (well-supported) transform animation instead of
+// react-native-svg's own animatable props.
+function OrbitPiece({ d, size, color, rotation }: OrbitPieceProps) {
+  const style = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
   }));
 
   return (
-    <AnimatedG origin={`${CENTER.x}, ${CENTER.y}`} animatedProps={animatedProps}>
-      <Path d={d} fill={fill} />
-    </AnimatedG>
+    <Animated.View style={[StyleSheet.absoluteFill, style]}>
+      <Svg width={size} height={size} viewBox={VIEW_BOX}>
+        <Path d={d} fill={color} />
+      </Svg>
+    </Animated.View>
   );
 }
-
-// The pieces swing out to ~40 units from CENTER while orbiting (further than
-// their tight 72x56 rest-position bounding box allows), so the viewBox has to
-// be a square generous enough to fit that full swing without clipping.
-const VIEW_BOX_HALF = 42;
-const VIEW_BOX = `${CENTER.x - VIEW_BOX_HALF} ${CENTER.y - VIEW_BOX_HALF} ${VIEW_BOX_HALF * 2} ${VIEW_BOX_HALF * 2}`;
 
 type OrbitingLogoProps = {
   size?: number;
@@ -80,11 +96,13 @@ export function OrbitingLogo({ size = 96, color = '#FFFFFF' }: OrbitingLogoProps
   const rotation = useOrbitRotation();
 
   return (
-    <Svg width={size} height={size} viewBox={VIEW_BOX}>
-      <Path d={RING_D} fill={color} />
-      <OrbitPiece d={SWOOSH_L_D} rotation={rotation} fill={color} />
-      <OrbitPiece d={SWOOSH_R_D} rotation={rotation} fill={color} />
-      <OrbitPiece d={CHIN_D} rotation={rotation} fill={color} />
-    </Svg>
+    <View style={{ width: size, height: size }}>
+      <Svg width={size} height={size} viewBox={VIEW_BOX} style={StyleSheet.absoluteFill}>
+        <Path d={RING_D} fill={color} />
+      </Svg>
+      <OrbitPiece d={SWOOSH_L_D} size={size} color={color} rotation={rotation} />
+      <OrbitPiece d={SWOOSH_R_D} size={size} color={color} rotation={rotation} />
+      <OrbitPiece d={CHIN_D} size={size} color={color} rotation={rotation} />
+    </View>
   );
 }
