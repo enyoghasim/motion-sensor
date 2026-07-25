@@ -19,7 +19,7 @@ export function clearAuthSession() {
 }
 
 // In some cases we might want to store user data (non-sensitive) securely or in AsyncStorage.
-export function setAuthSession(authResponse: any, rememberMe: boolean = true) {
+export function setAuthSession(authResponse: any) {
   if (authResponse?.data?.access_token) {
     setAccessToken(authResponse.data.access_token);
   }
