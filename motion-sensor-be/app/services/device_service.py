@@ -18,9 +18,9 @@ class DeviceService:
         self.mqtt_client = mqtt_client
         self.email_service = email_service
 
-    async def get_user_devices(self, user: User, cursor: datetime | None = None, limit: int = 10) -> dict:
+    async def get_user_devices(self, user: User, space_id: int | None = None, cursor: datetime | None = None, limit: int = 10) -> dict:
         # Fetch limit + 1 to know if there's a next page
-        devices = await self.repository.get_user_devices_cursor(user.id, cursor, limit + 1)
+        devices = await self.repository.get_user_devices_cursor(user.id, space_id, cursor, limit + 1)
         
         next_cursor = None
         if len(devices) > limit:

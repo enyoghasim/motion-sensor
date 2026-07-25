@@ -23,6 +23,7 @@ class DeviceOut(BaseModel):
     factory_mac: str
     name: str | None
     status: str
+    space_id: int | None
     created_at: datetime
     last_seen: datetime | None
 

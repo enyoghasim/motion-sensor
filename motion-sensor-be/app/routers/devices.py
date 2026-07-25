@@ -8,7 +8,7 @@ from app.repositories.device_repository import DeviceRepository
 from app.services.device_service import DeviceService
 from app.services.email_service import EmailService
 from app.models.user import User
-from app.core.security import get_current_user
+from app.core.security import get_current_verified_user
 
 router = APIRouter(prefix="/api/devices", tags=["Devices"])
 
@@ -24,18 +24,19 @@ from fastapi import Query
 
 @router.get("", response_model=schemas.DevicePaginatedResponse)
 async def get_devices(
+    space_id: int | None = None,
     cursor: datetime | None = None,
     limit: int = Query(10, le=100),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_verified_user),
     service: DeviceService = Depends(get_device_service)
 ):
-    return await service.get_user_devices(current_user, cursor, limit)
+    return await service.get_user_devices(current_user, space_id, cursor, limit)
 
 @router.delete("/{device_id}")
 async def delete_device(
     device_id: uuid.UUID,
     request: schemas.DeviceDeleteRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_verified_user),
     service: DeviceService = Depends(get_device_service)
 ):
     await service.delete_device(current_user, device_id, request.password)
@@ -43,7 +44,7 @@ async def delete_device(
 @router.post("/claim/start", response_model=schemas.DeviceClaimStartResponse)
 async def claim_start(
     request: schemas.DeviceClaimStartRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_verified_user),
     service: DeviceService = Depends(get_device_service),
 ):
     """Initiates the device pairing process."""
@@ -52,7 +53,7 @@ async def claim_start(
 @router.post("/claim/finish")
 async def claim_finish(
     request: schemas.DeviceClaimFinishRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_verified_user),
     service: DeviceService = Depends(get_device_service),
 ):
     """Finalizes the device pairing by verifying the ESP32's signature."""

@@ -10,8 +10,10 @@ class DeviceRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_user_devices_cursor(self, user_id: int, cursor: datetime | None, limit: int) -> list[Device]:
+    async def get_user_devices_cursor(self, user_id: int, space_id: int | None, cursor: datetime | None, limit: int) -> list[Device]:
         stmt = select(Device).filter(Device.owner_id == user_id)
+        if space_id is not None:
+            stmt = stmt.filter(Device.space_id == space_id)
         if cursor:
             stmt = stmt.filter(Device.created_at < cursor)
         stmt = stmt.order_by(Device.created_at.desc()).limit(limit)
