@@ -10,7 +10,9 @@ const ONLINE_THRESHOLD_MS = 5 * 60 * 1000;
 
 function isOnline(device: Device) {
   if (!device.last_seen) return false;
-  return Date.now() - new Date(device.last_seen).getTime() < ONLINE_THRESHOLD_MS;
+  return (
+    Date.now() - new Date(device.last_seen).getTime() < ONLINE_THRESHOLD_MS
+  );
 }
 
 export function DeviceCard({ device }: { device: Device }) {
@@ -18,7 +20,7 @@ export function DeviceCard({ device }: { device: Device }) {
 
   return (
     <Pressable
-      onPress={() => router.push(`/(app)/(spaces)/${device.id}`)}
+      onPress={() => router.push(`/(app)/spaces/${device.id}`)}
       className="flex-row items-center justify-between rounded-3xl bg-zinc-900 px-6 py-8 active:opacity-80"
     >
       <ThemedText variant="lg" weight="medium" className="flex-1 text-zinc-400">

@@ -18,7 +18,7 @@ export const useLoginMutation = () => {
             password: values.password,
           });
           setAuthSession(data);
-          router.replace("/(app)/(spaces)")
+          router.replace("/(app)")
           return data;
         } catch (error) {
           throw handleApiError(error);
@@ -39,7 +39,7 @@ export const useRegisterMutation = () => {
             name: values.name,
           });
           setAuthSession(data);
-          router.replace("/(app)/(spaces)")
+          router.replace("/(app)")
           return data;
         } catch (error) {
           throw handleApiError(error);

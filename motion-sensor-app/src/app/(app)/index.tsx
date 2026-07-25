@@ -1,6 +1,9 @@
 import {
   BellIcon,
   ChevronDownIcon,
+  ChevronUpIcon,
+  Hexagon01Icon,
+  Home01Icon,
   PlusSignIcon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
@@ -14,7 +17,10 @@ import {
   Pressable,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { DeviceCard } from "@/modules/devices/components/device-card";
 import { useDevicesQuery } from "@/modules/devices/services/device.query";
@@ -22,7 +28,7 @@ import { useSpacesQuery } from "@/modules/spaces/services/space.query";
 import { Space } from "@/modules/spaces/types";
 import { ThemedText } from "@/modules/shared/components/themed-text";
 
-export default function SpaceScreen() {
+export default function AppIndex() {
   const { data, isLoading } = useDevicesQuery();
   const devices = data?.items ?? [];
   const insets = useSafeAreaInsets();
@@ -50,7 +56,11 @@ export default function SpaceScreen() {
             <ThemedText variant="lg" weight="medium">
               {selectedSpace?.name ?? ""}
             </ThemedText>
-            <HugeiconsIcon icon={ChevronDownIcon} size={20} color="#ffffff" />
+            <HugeiconsIcon
+              icon={isSpaceMenuOpen ? ChevronUpIcon : ChevronDownIcon}
+              size={20}
+              color="#ffffff"
+            />
           </Pressable>
 
           <Modal
@@ -65,7 +75,7 @@ export default function SpaceScreen() {
             >
               <View
                 style={{ marginTop: insets.top + 52 }}
-                className="ml-6 w-48 overflow-hidden rounded-2xl bg-zinc-900"
+                className="ml-6 w-56 overflow-hidden rounded-2xl bg-zinc-900"
               >
                 {spaces.map((space) => (
                   <Pressable
@@ -74,19 +84,42 @@ export default function SpaceScreen() {
                       setSelectedSpace(space);
                       setIsSpaceMenuOpen(false);
                     }}
-                    className="flex-row items-center justify-between px-4 py-3 active:bg-zinc-800"
+                    className="flex-row items-center gap-3 px-4 py-3 active:bg-zinc-800"
                   >
+                    <HugeiconsIcon icon={Home01Icon} size={18} color="#ffffff" />
                     <ThemedText
                       variant="md"
-                      weight={space.id === selectedSpace?.id ? "medium" : "regular"}
+                      weight={
+                        space.id === selectedSpace?.id ? "medium" : "regular"
+                      }
+                      className="flex-1"
                     >
                       {space.name}
                     </ThemedText>
                     {space.id === selectedSpace?.id && (
-                      <HugeiconsIcon icon={Tick02Icon} size={18} color="#ffffff" />
+                      <HugeiconsIcon
+                        icon={Tick02Icon}
+                        size={18}
+                        color="#ffffff"
+                      />
                     )}
                   </Pressable>
                 ))}
+
+                <View className="h-px bg-zinc-700" />
+
+                <Pressable
+                  onPress={() => {
+                    setIsSpaceMenuOpen(false);
+                    router.push("/(app)/spaces");
+                  }}
+                  className="flex-row items-center gap-3 px-4 py-3 active:bg-zinc-800"
+                >
+                  <HugeiconsIcon icon={Hexagon01Icon} size={18} color="#71717a" />
+                  <ThemedText variant="md" className="text-zinc-500">
+                    Space management
+                  </ThemedText>
+                </Pressable>
               </View>
             </Pressable>
           </Modal>
@@ -99,7 +132,7 @@ export default function SpaceScreen() {
 
             <Pressable
               hitSlop={12}
-              onPress={() => router.push("/(app)/(spaces)/new")}
+              onPress={() => router.push("/(app)/spaces/new")}
               className="h-9 w-9 items-center justify-center rounded-full border border-zinc-700"
             >
               <HugeiconsIcon icon={PlusSignIcon} size={18} color="#ffffff" />
