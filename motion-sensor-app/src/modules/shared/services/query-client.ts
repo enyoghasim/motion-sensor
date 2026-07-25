@@ -1,4 +1,5 @@
-import { QueryClient, MutationOptions, QueryKey } from '@tanstack/react-query';
+import { QueryClient, UseMutationOptions, QueryKey } from '@tanstack/react-query';
+import type { ApiError } from '../lib/util';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -45,13 +46,13 @@ export const queryKeysFactory = <TKey extends string>(key: TKey): QueryKeyFactor
 
 export const buildMutationOptions = <
   TData = unknown,
-  TError = Error,
+  TError = ApiError,
   TVariables = void,
   TContext = unknown
 >(
   queryKey?: QueryKey,
-  options?: MutationOptions<TData, TError, TVariables, TContext>
-): MutationOptions<TData, TError, TVariables, TContext> => ({
+  options?: UseMutationOptions<TData, TError, TVariables, TContext>
+): UseMutationOptions<TData, TError, TVariables, TContext> => ({
   ...options,
   onSuccess: async (data, variables, context) => {
     // @ts-ignore - The types expect 4 arguments in some versions

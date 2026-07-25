@@ -18,7 +18,11 @@ import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterScreen() {
-  const registerMutation = useRegisterMutation();
+  const {
+    mutate: register,
+    error: registerError,
+    isPending: isRegistering,
+  } = useRegisterMutation();
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const {
@@ -34,16 +38,7 @@ export default function RegisterScreen() {
     },
   });
 
-  const onSubmit = (data: RegisterValues) => {
-    registerMutation.mutate(data, {
-      onSuccess: () => {
-        router.replace("/(app)/(spaces)");
-      },
-      onError: (error: any) => {
-        console.error("Registration failed", error);
-      },
-    });
-  };
+  const onSubmit = (data: RegisterValues) => register(data);
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-black">
@@ -67,9 +62,9 @@ export default function RegisterScreen() {
           Create account
         </ThemedText>
 
-        {registerMutation.error && (
+        {registerError && (
           <ErrorMessage
-            message={(registerMutation.error as any).message}
+            message={registerError?.errors}
             fallback="Registration failed. Please try again."
           />
         )}
@@ -152,9 +147,9 @@ export default function RegisterScreen() {
           </Pressable>
 
           <Button
-            title={registerMutation.isPending ? "Signing Up..." : "Sign Up"}
+            title={isRegistering ? "Signing Up..." : "Sign Up"}
             onPress={handleSubmit(onSubmit)}
-            loading={registerMutation.isPending}
+            loading={isRegistering}
             disabled={!agreedToTerms}
             className="mt-8"
           />

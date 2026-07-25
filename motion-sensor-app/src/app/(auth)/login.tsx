@@ -13,7 +13,11 @@ import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
-  const loginMutation = useLoginMutation();
+  const {
+    mutate: login,
+    error: loginError,
+    isPending: isLoggingIn,
+  } = useLoginMutation();
 
   const {
     control,
@@ -27,18 +31,7 @@ export default function LoginScreen() {
     },
   });
 
-  const onSubmit = (data: LoginValues) => {
-    loginMutation.mutate(data, {
-      onSuccess: () => {
-        router.replace("/(app)/(spaces)");
-      },
-      onError: (error: any) => {
-        router.replace("/(app)/(spaces)");
-
-        console.error("Login failed", error);
-      },
-    });
-  };
+  const onSubmit = (data: LoginValues) => login(data);
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-black">
@@ -62,9 +55,9 @@ export default function LoginScreen() {
           Welcome back
         </ThemedText>
 
-        {loginMutation.error && (
+        {loginError && (
           <ErrorMessage
-            message={(loginMutation.error as any).message}
+            message={loginError?.errors}
             fallback="Login failed. Please check your credentials."
           />
         )}
@@ -113,9 +106,9 @@ export default function LoginScreen() {
           </Pressable>
 
           <Button
-            title={loginMutation.isPending ? "Signing In..." : "Log in"}
+            title={isLoggingIn ? "Signing In..." : "Log in"}
             onPress={handleSubmit(onSubmit)}
-            loading={loginMutation.isPending}
+            loading={isLoggingIn}
             className="mt-8"
           />
         </View>

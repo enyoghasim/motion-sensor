@@ -122,7 +122,7 @@ export default function ForgotPasswordScreen() {
 
             {requestMutation.error && (
               <ErrorMessage
-                message={requestMutation.error.message}
+                message={requestMutation.error.errors}
                 fallback="Something went wrong. Please try again."
               />
             )}
@@ -174,7 +174,7 @@ export default function ForgotPasswordScreen() {
 
             {verifyMutation.error && (
               <ErrorMessage
-                message={verifyMutation.error.message}
+                message={verifyMutation.error.errors}
                 fallback="Something went wrong. Please try again."
               />
             )}

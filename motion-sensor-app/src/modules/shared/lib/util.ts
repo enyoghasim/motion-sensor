@@ -9,16 +9,30 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function handleApiError(error: unknown): Error {
+export class ApiError extends Error {
+  errors: string | string[];
+
+  constructor(errors: string | string[]) {
+    super(Array.isArray(errors) ? errors.join(", ") : errors);
+    this.name = "ApiError";
+    this.errors = errors;
+  }
+}
+
+export function handleApiError(error: unknown): ApiError {
   if (error instanceof AxiosError) {
-    const apiMessage = error.response?.data?.message;
+    const data = error.response?.data as ApiResponse | undefined;
 
-    if (apiMessage) return new Error(apiMessage);
+    if (data?.errors && data.errors.length > 0) {
+      return new ApiError(data.errors.map((err) => err.message));
+    }
 
-    if (error.message) return new Error(error.message);
+    if (data?.message) return new ApiError(data.message);
+
+    if (error.message) return new ApiError(error.message);
   }
 
-  return new Error("Something went wrong. Please try again later.");
+  return new ApiError("Something went wrong. Please try again later.");
 }
 
 export function validateApiResponse<T>(response: ApiResponse<T>): T {
