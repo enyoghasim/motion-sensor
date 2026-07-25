@@ -4,16 +4,10 @@ import {
   getAccessToken,
 } from '../../auth/services/auth-storage';
 import { AUTH_ENDPOINTS } from '../../auth/services/auth.endpoints';
-
-// Use environment variable or fallback to localhost (for iOS simulator)
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
-
-function resolveApiBaseUrl() {
-  return API_URL;
-}
+import { env } from './env';
 
 const api = axios.create({
-  baseURL: resolveApiBaseUrl(),
+  baseURL: env.EXPO_PUBLIC_API_URL,
   timeout: 10000,
 });
 
