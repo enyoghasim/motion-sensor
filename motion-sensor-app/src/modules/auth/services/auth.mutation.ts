@@ -6,47 +6,54 @@ import { clearAuthSession, setAuthSession } from './auth-storage';
 import { queryClient, buildMutationOptions } from '../../shared/services/query-client';
 import { userKeys } from '../../shared/services/query-keys';
 import { ForgotPasswordValues, LoginValues, RegisterValues } from '../validations/auth';
+import { User } from '../types';
 import { router } from 'expo-router';
 
+type AuthResponse = {
+  access_token: string;
+  token_type: string;
+  user: User;
+};
+
 export const useLoginMutation = () => {
-  return useMutation(
-    buildMutationOptions(userKeys.all, {
-      mutationFn: async (values: LoginValues) => {
-        try {
-          const { data } = await api.post(AUTH_ENDPOINTS.login, {
-            email: values.email,
-            password: values.password,
-          });
-          setAuthSession(data);
-          router.replace("/(app)")
-          return data;
-        } catch (error) {
-          throw handleApiError(error);
-        }
-      },
-    })
-  );
+  return useMutation<AuthResponse, ApiError, LoginValues>({
+    mutationFn: async (values: LoginValues) => {
+      try {
+        const { data } = await api.post(AUTH_ENDPOINTS.login, {
+          email: values.email,
+          password: values.password,
+        });
+        const authData = validateApiResponse<AuthResponse>(data);
+        setAuthSession(data);
+        queryClient.setQueryData(userKeys.detail('me'), authData.user);
+        router.replace("/(app)")
+        return authData;
+      } catch (error) {
+        throw handleApiError(error);
+      }
+    },
+  });
 };
 
 export const useRegisterMutation = () => {
-  return useMutation(
-    buildMutationOptions(userKeys.all, {
-      mutationFn: async (values: RegisterValues) => {
-        try {
-          const { data } = await api.post(AUTH_ENDPOINTS.register, {
-            email: values.email,
-            password: values.password,
-            name: values.name,
-          });
-          setAuthSession(data);
-          router.replace("/(app)")
-          return data;
-        } catch (error) {
-          throw handleApiError(error);
-        }
-      },
-    })
-  );
+  return useMutation<AuthResponse, ApiError, RegisterValues>({
+    mutationFn: async (values: RegisterValues) => {
+      try {
+        const { data } = await api.post(AUTH_ENDPOINTS.register, {
+          email: values.email,
+          password: values.password,
+          name: values.name,
+        });
+        const authData = validateApiResponse<AuthResponse>(data);
+        setAuthSession(data);
+        queryClient.setQueryData(userKeys.detail('me'), authData.user);
+        router.replace("/(app)")
+        return authData;
+      } catch (error) {
+        throw handleApiError(error);
+      }
+    },
+  });
 };
 
 export const useRequestPasswordResetMutation = () => {
