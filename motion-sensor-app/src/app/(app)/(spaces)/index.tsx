@@ -6,7 +6,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -18,17 +18,25 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { DeviceCard } from "@/modules/devices/components/device-card";
 import { useDevicesQuery } from "@/modules/devices/services/device.query";
+import { useSpacesQuery } from "@/modules/spaces/services/space.query";
+import { Space } from "@/modules/spaces/types";
 import { ThemedText } from "@/modules/shared/components/themed-text";
-
-const SPACES = ["House"];
 
 export default function SpaceScreen() {
   const { data, isLoading } = useDevicesQuery();
   const devices = data?.items ?? [];
   const insets = useSafeAreaInsets();
 
+  const { data: spaces = [] } = useSpacesQuery();
+
   const [isSpaceMenuOpen, setIsSpaceMenuOpen] = useState(false);
-  const [selectedSpace, setSelectedSpace] = useState(SPACES[0]);
+  const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
+
+  useEffect(() => {
+    if (!selectedSpace && spaces.length > 0) {
+      setSelectedSpace(spaces[0]);
+    }
+  }, [spaces, selectedSpace]);
 
   return (
     <View className="flex-1 bg-black">
@@ -40,7 +48,7 @@ export default function SpaceScreen() {
             onPress={() => setIsSpaceMenuOpen(true)}
           >
             <ThemedText variant="lg" weight="medium">
-              {selectedSpace}
+              {selectedSpace?.name ?? ""}
             </ThemedText>
             <HugeiconsIcon icon={ChevronDownIcon} size={20} color="#ffffff" />
           </Pressable>
@@ -59,9 +67,9 @@ export default function SpaceScreen() {
                 style={{ marginTop: insets.top + 52 }}
                 className="ml-6 w-48 overflow-hidden rounded-2xl bg-zinc-900"
               >
-                {SPACES.map((space) => (
+                {spaces.map((space) => (
                   <Pressable
-                    key={space}
+                    key={space.id}
                     onPress={() => {
                       setSelectedSpace(space);
                       setIsSpaceMenuOpen(false);
@@ -70,11 +78,11 @@ export default function SpaceScreen() {
                   >
                     <ThemedText
                       variant="md"
-                      weight={space === selectedSpace ? "medium" : "regular"}
+                      weight={space.id === selectedSpace?.id ? "medium" : "regular"}
                     >
-                      {space}
+                      {space.name}
                     </ThemedText>
-                    {space === selectedSpace && (
+                    {space.id === selectedSpace?.id && (
                       <HugeiconsIcon icon={Tick02Icon} size={18} color="#ffffff" />
                     )}
                   </Pressable>
