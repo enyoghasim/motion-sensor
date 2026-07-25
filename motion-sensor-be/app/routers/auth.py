@@ -6,7 +6,7 @@ import random
 import string
 import uuid
 
-from app.schemas.auth import RegisterUser, LoginUser, Token, OTPRequest, OTPVerify, ResetPasswordRequest, ResetPasswordVerify, ResetPasswordResponse, ChangePasswordRequest
+from app.schemas.auth import RegisterUser, LoginUser, Token, UserResponse, OTPRequest, OTPVerify, ResetPasswordRequest, ResetPasswordVerify, ResetPasswordResponse, ChangePasswordRequest
 from app.core.database import get_db
 from app.models.user import User
 from app.core.security import get_password_hash, verify_password, create_session_token, get_current_user, oauth2_scheme
@@ -69,7 +69,15 @@ async def register(user_in: RegisterUser, db: AsyncSession = Depends(get_db)):
     
     return success_response(
         message="User registered successfully",
-        data=Token(access_token=token).model_dump()
+        data=Token(
+            access_token=token,
+            user=UserResponse(
+                id=db_user.id,
+                email=db_user.email,
+                name=db_user.name,
+                email_verified=db_user.email_verified,
+            ),
+        ).model_dump()
     )
 
 @router.post("/signin", response_model=SuccessResponseModel[Token])
@@ -91,7 +99,15 @@ async def login(user_in: LoginUser, db: AsyncSession = Depends(get_db)):
     token = await create_session_token(user.id)
     return success_response(
         message="Login successful",
-        data=Token(access_token=token).model_dump()
+        data=Token(
+            access_token=token,
+            user=UserResponse(
+                id=user.id,
+                email=user.email,
+                name=user.name,
+                email_verified=user.email_verified,
+            ),
+        ).model_dump()
     )
 
 @router.post("/otp/request", response_model=SuccessResponseModel[None])

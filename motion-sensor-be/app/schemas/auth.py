@@ -29,15 +29,16 @@ class LoginUser(BaseModel):
     email: EmailStr
     password: Password
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
 class UserResponse(BaseModel):
     id: int
     email: EmailStr
     name: str
     email_verified: bool
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
 
 class OTPRequest(BaseModel):
     scope: str
