@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Toaster } from "sonner-native";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import "../global.css";
@@ -44,8 +46,11 @@ export default function TabLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppGate />
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <AppGate />
+        <Toaster position="top-center" richColors />
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
