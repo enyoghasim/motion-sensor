@@ -26,7 +26,7 @@ export const useLoginMutation = () => {
         const authData = validateApiResponse<AuthResponse>(data);
         setAuthSession(data);
         queryClient.setQueryData(userKeys.detail('me'), authData.user);
-        router.replace("/")
+        router.replace("/(app)/(tabs)")
         return authData;
       } catch (error) {
         throw handleApiError(error);
@@ -47,7 +47,7 @@ export const useRegisterMutation = () => {
         const authData = validateApiResponse<AuthResponse>(data);
         setAuthSession(data);
         queryClient.setQueryData(userKeys.detail('me'), authData.user);
-        router.replace("/")
+        router.replace("/(app)/(tabs)")
         return authData;
       } catch (error) {
         throw handleApiError(error);

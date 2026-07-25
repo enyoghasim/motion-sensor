@@ -7,7 +7,7 @@ export default function AuthLayout() {
 
   useEffect(() => {
     if (isLoading || !user) return;
-    router.replace("/");
+    router.replace("/(app)/(tabs)");
   }, [isLoading, user]);
 
   if (isLoading || user) return null;
