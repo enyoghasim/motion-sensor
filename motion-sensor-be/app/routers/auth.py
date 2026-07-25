@@ -120,7 +120,7 @@ async def verify_otp(
     
     is_valid_otp = False
     if stored_otp:
-        is_valid_otp = await asyncio.to_thread(verify_password, request.otp, stored_otp.decode("utf-8"))
+        is_valid_otp = await asyncio.to_thread(verify_password, request.otp, stored_otp)
         
     if not stored_otp or not is_valid_otp:
         raise HTTPException(
@@ -200,7 +200,7 @@ async def reset_password_verify(
     
     is_valid_otp = False
     if stored_hash:
-        is_valid_otp = await asyncio.to_thread(verify_password, request.otp, stored_hash.decode("utf-8"))
+        is_valid_otp = await asyncio.to_thread(verify_password, request.otp, stored_hash)
         
     if not stored_hash or not stored_user_id or not is_valid_otp:
         raise HTTPException(
@@ -208,7 +208,7 @@ async def reset_password_verify(
             detail="Invalid or expired request or OTP."
         )
         
-    user_id = int(stored_user_id.decode("utf-8"))
+    user_id = int(stored_user_id)
     result = await db.execute(select(User).filter(User.id == user_id))
     user = result.scalars().first()
     
