@@ -11,7 +11,7 @@ const AppIndex = () => {
   if (isLoading) return null;
 
   if (user) {
-    return <Redirect href="/(app)" />;
+    return <Redirect href="/" />;
   }
 
   return (

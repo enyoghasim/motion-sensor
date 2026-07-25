@@ -3,6 +3,7 @@ export type Device = {
   factory_mac: string;
   name: string | null;
   status: string;
+  space_id: number | null;
   created_at: string;
   last_seen: string | null;
 };

@@ -22,27 +22,38 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
+import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { DeviceCard } from "@/modules/devices/components/device-card";
-import { useDevicesQuery } from "@/modules/devices/services/device.query";
-import { useSpacesQuery } from "@/modules/spaces/services/space.query";
-import { Space } from "@/modules/spaces/types";
+import { useGetSpaceDevices } from "@/modules/devices/services/device.query";
 import { ThemedText } from "@/modules/shared/components/themed-text";
+import { useSelectedSpaceStore } from "@/modules/spaces/store/selected-space.store";
+import { useSpacesQuery } from "@/modules/spaces/services/space.query";
 
 export default function AppIndex() {
-  const { data, isLoading } = useDevicesQuery();
-  const devices = data?.items ?? [];
+  const { data: user } = useCurrentUserQuery();
+  const isVerified = !!user?.email_verified;
   const insets = useSafeAreaInsets();
 
-  const { data: spaces = [] } = useSpacesQuery();
+  const { data: spaces = [] } = useSpacesQuery(isVerified);
 
-  const [isSpaceMenuOpen, setIsSpaceMenuOpen] = useState(false);
-  const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
+  const { selectedSpaceId, setSelectedSpaceId } = useSelectedSpaceStore();
+  const selectedSpace =
+    spaces.find((space) => space.id === selectedSpaceId) ?? spaces[0] ?? null;
 
   useEffect(() => {
-    if (!selectedSpace && spaces.length > 0) {
-      setSelectedSpace(spaces[0]);
+    if (spaces.length === 0) return;
+    if (!spaces.some((space) => space.id === selectedSpaceId)) {
+      setSelectedSpaceId(spaces[0].id);
     }
-  }, [spaces, selectedSpace]);
+  }, [spaces, selectedSpaceId, setSelectedSpaceId]);
+
+  const { data, isLoading } = useGetSpaceDevices(
+    selectedSpace?.id ?? null,
+    isVerified,
+  );
+  const devices = data?.items ?? [];
+
+  const [isSpaceMenuOpen, setIsSpaceMenuOpen] = useState(false);
 
   return (
     <View className="flex-1 bg-black">
@@ -81,12 +92,16 @@ export default function AppIndex() {
                   <Pressable
                     key={space.id}
                     onPress={() => {
-                      setSelectedSpace(space);
+                      setSelectedSpaceId(space.id);
                       setIsSpaceMenuOpen(false);
                     }}
                     className="flex-row items-center gap-3 px-4 py-3 active:bg-zinc-800"
                   >
-                    <HugeiconsIcon icon={Home01Icon} size={18} color="#ffffff" />
+                    <HugeiconsIcon
+                      icon={Home01Icon}
+                      size={18}
+                      color="#ffffff"
+                    />
                     <ThemedText
                       variant="md"
                       weight={
@@ -111,11 +126,15 @@ export default function AppIndex() {
                 <Pressable
                   onPress={() => {
                     setIsSpaceMenuOpen(false);
-                    router.push("/(app)/spaces");
+                    router.push("/spaces");
                   }}
                   className="flex-row items-center gap-3 px-4 py-3 active:bg-zinc-800"
                 >
-                  <HugeiconsIcon icon={Hexagon01Icon} size={18} color="#71717a" />
+                  <HugeiconsIcon
+                    icon={Hexagon01Icon}
+                    size={18}
+                    color="#71717a"
+                  />
                   <ThemedText variant="md" className="text-zinc-500">
                     Space management
                   </ThemedText>
@@ -132,7 +151,7 @@ export default function AppIndex() {
 
             <Pressable
               hitSlop={12}
-              onPress={() => router.push("/(app)/spaces/new")}
+              onPress={() => router.push("/spaces/new")}
               className="h-9 w-9 items-center justify-center rounded-full border border-zinc-700"
             >
               <HugeiconsIcon icon={PlusSignIcon} size={18} color="#ffffff" />

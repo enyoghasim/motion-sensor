@@ -4,12 +4,13 @@ import { deviceKeys } from '../../shared/services/query-keys';
 import { DevicePaginatedResponse } from '../types';
 import { DEVICE_ENDPOINTS } from './device.endpoints';
 
-export const useDevicesQuery = () => {
+export const useGetSpaceDevices = (spaceId: number | null, enabled: boolean = true) => {
   return useQuery({
-    queryKey: deviceKeys.list({}),
+    queryKey: deviceKeys.list({ spaceId }),
+    enabled: enabled && spaceId != null,
     queryFn: async () => {
       const { data } = await api.get<DevicePaginatedResponse>(DEVICE_ENDPOINTS.list, {
-        params: { limit: 50 },
+        params: { space_id: spaceId, limit: 50 },
       });
       return data;
     },

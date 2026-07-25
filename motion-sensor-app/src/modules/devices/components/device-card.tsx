@@ -20,7 +20,7 @@ export function DeviceCard({ device }: { device: Device }) {
 
   return (
     <Pressable
-      onPress={() => router.push(`/(app)/spaces/${device.id}`)}
+      onPress={() => router.push(`/spaces/${device.id}`)}
       className="flex-row items-center justify-between rounded-3xl bg-zinc-900 px-6 py-8 active:opacity-80"
     >
       <ThemedText variant="lg" weight="medium" className="flex-1 text-zinc-400">

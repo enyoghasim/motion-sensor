@@ -80,7 +80,7 @@ export default function SpaceManagementScreen() {
             contentContainerClassName="gap-2 px-6 pb-6"
             renderItem={({ item }) => (
               <Pressable
-                onPress={() => router.push(`/(app)/spaces/${item.id}`)}
+                onPress={() => router.push(`/spaces/${item.id}`)}
                 className="flex-row items-center gap-3 rounded-2xl bg-zinc-900 px-4 py-4 active:bg-zinc-800"
               >
                 <HugeiconsIcon icon={Home01Icon} size={20} color="#ffffff" />
