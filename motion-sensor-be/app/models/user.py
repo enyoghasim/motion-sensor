@@ -8,6 +8,7 @@ from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.models.device import Device
+    from app.models.space import Space
 
 
 class User(Base):
@@ -22,3 +23,4 @@ class User(Base):
     email_verified: Mapped[bool] = mapped_column(Boolean, server_default='false')
     
     devices: Mapped[list["Device"]] = relationship("Device", back_populates="owner")
+    spaces: Mapped[list["Space"]] = relationship("Space", back_populates="owner")

@@ -13,6 +13,8 @@ from app.core.security import get_password_hash, verify_password, create_session
 from app.core.redis_client import redis_client
 from app.utils.response import success_response, SuccessResponseModel, ErrorResponseModel
 from app.services.email_service import EmailService
+from app.repositories.space_repository import SpaceRepository
+from app.services.space_service import SpaceService
 
 async def check_rate_limit(key: str, max_requests: int = 5, window_seconds: int = 600):
     requests_count = await redis_client.incr(key)
@@ -55,7 +57,9 @@ async def register(user_in: RegisterUser, db: AsyncSession = Depends(get_db)):
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
-    
+
+    await SpaceService(SpaceRepository(db)).create_default_space(db_user)
+
     token = await create_session_token(db_user.id)
     
     otp, hashed_otp = await generate_and_hash_otp()
