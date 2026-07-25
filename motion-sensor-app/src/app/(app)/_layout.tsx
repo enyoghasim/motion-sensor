@@ -23,6 +23,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { EmailVerificationOverlay } from "@/modules/auth/components/email-verification-overlay";
 import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { ThemedText } from "@/modules/shared/components/themed-text";
 import { cn } from "@/modules/shared/lib/util";
@@ -37,22 +38,27 @@ export default function AppLayout() {
   }
 
   return (
-    <Tabs className="flex-1 bg-black">
-      <TabSlot style={{ flex: 1 }} />
-      <TabList asChild>
-        <CustomTabList>
-          <TabTrigger name="(spaces)" href="/" asChild>
-            <TabButton icon={Home01Icon}>Space</TabButton>
-          </TabTrigger>
-          <TabTrigger name="automation" href="/automation" asChild>
-            <TabButton icon={RepeatIcon}>Automation</TabButton>
-          </TabTrigger>
-          <TabTrigger name="me" href="/me" asChild>
-            <TabButton icon={UserCircleIcon}>Me</TabButton>
-          </TabTrigger>
-        </CustomTabList>
-      </TabList>
-    </Tabs>
+    <>
+      <Tabs className="flex-1 bg-black">
+        <TabSlot style={{ flex: 1 }} />
+        <TabList asChild>
+          <CustomTabList>
+            <TabTrigger name="(spaces)" href="/" asChild>
+              <TabButton icon={Home01Icon}>Space</TabButton>
+            </TabTrigger>
+            <TabTrigger name="automation" href="/automation" asChild>
+              <TabButton icon={RepeatIcon}>Automation</TabButton>
+            </TabTrigger>
+            <TabTrigger name="me" href="/me" asChild>
+              <TabButton icon={UserCircleIcon}>Me</TabButton>
+            </TabTrigger>
+          </CustomTabList>
+        </TabList>
+      </Tabs>
+      {!user.email_verified && (
+        <EmailVerificationOverlay email={user.email} />
+      )}
+    </>
   );
 }
 

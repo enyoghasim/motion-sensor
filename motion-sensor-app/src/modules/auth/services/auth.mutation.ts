@@ -85,6 +85,39 @@ export const useVerifyPasswordResetMutation = () => {
   });
 };
 
+export const useRequestEmailVerificationMutation = () => {
+  return useMutation<null, ApiError, void>({
+    mutationFn: async () => {
+      try {
+        const { data } = await api.post(AUTH_ENDPOINTS.otpRequest, {
+          scope: 'email_verification',
+        });
+        return validateApiResponse<null>(data);
+      } catch (error) {
+        throw handleApiError(error);
+      }
+    },
+  });
+};
+
+export const useVerifyEmailMutation = () => {
+  return useMutation<null, ApiError, string>(
+    buildMutationOptions(userKeys.all, {
+      mutationFn: async (otp: string) => {
+        try {
+          const { data } = await api.post(AUTH_ENDPOINTS.otpVerify, {
+            otp,
+            scope: 'email_verification',
+          });
+          return validateApiResponse<null>(data);
+        } catch (error) {
+          throw handleApiError(error);
+        }
+      },
+    })
+  );
+};
+
 export const useLogoutMutation = () => {
   return useMutation(
     buildMutationOptions(userKeys.all, {

@@ -33,6 +33,12 @@ const newPasswordSchema = z
     'Password must contain at least one special character',
   );
 
+export const emailVerificationSchema = z.object({
+  otp: z.string().length(6, 'Enter the 6-digit code'),
+});
+
+export type EmailVerificationValues = z.infer<typeof emailVerificationSchema>;
+
 export const resetPasswordSchema = z
   .object({
     otp: z.string().length(6, 'Enter the 6-digit code'),
