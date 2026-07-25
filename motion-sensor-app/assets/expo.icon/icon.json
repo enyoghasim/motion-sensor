@@ -1,6 +1,6 @@
 {
   "fill" : {
-    "automatic-gradient" : "extended-srgb:0.12549,0.54118,0.93725,1.00000"
+    "automatic-gradient" : "extended-srgb:0.07059,0.07059,0.07843,1.00000"
   },
   "groups" : [
     {
@@ -15,10 +15,6 @@
               0
             ]
           }
-        },
-        {
-          "image-name" : "grid.png",
-          "name" : "grid"
         }
       ],
       "shadow" : {
