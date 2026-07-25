@@ -10,5 +10,5 @@ export const AUTH_ENDPOINTS = {
 } as const;
 
 export const USER_ENDPOINTS = {
-  me: '/users/me',
+  me: '/user/me',
 } as const;

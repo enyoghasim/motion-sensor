@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, { Easing, Keyframe } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -8,9 +8,22 @@ import { scheduleOnRN } from 'react-native-worklets';
 const INITIAL_SCALE_FACTOR = Dimensions.get('screen').height / 90;
 const DURATION = 600;
 
-export function AnimatedSplashOverlay() {
+type AnimatedSplashOverlayProps = {
+  /** Whether whatever the splash is gating on (e.g. the initial auth check) has settled. */
+  ready: boolean;
+};
+
+export function AnimatedSplashOverlay({ ready }: AnimatedSplashOverlayProps) {
+  const [laidOut, setLaidOut] = useState(false);
   const [animate, setAnimate] = useState(false);
   const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (!laidOut || !ready || animate) return;
+    SplashScreen.hideAsync().finally(() => {
+      setAnimate(true);
+    });
+  }, [laidOut, ready, animate]);
 
   if (!visible) return null;
 
@@ -47,13 +60,7 @@ export function AnimatedSplashOverlay() {
       {image}
     </Animated.View>
   ) : (
-    <View
-      onLayout={() => {
-        SplashScreen.hideAsync().finally(() => {
-          setAnimate(true);
-        });
-      }}
-      style={styles.splashOverlay}>
+    <View onLayout={() => setLaidOut(true)} style={styles.splashOverlay}>
       {image}
     </View>
   );

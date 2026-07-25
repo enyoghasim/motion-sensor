@@ -23,14 +23,16 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { ThemedText } from "@/modules/shared/components/themed-text";
 import { cn } from "@/modules/shared/lib/util";
 
 export default function AppLayout() {
-  const token = "getAccessToken()";
+  const { data: user, isLoading } = useCurrentUserQuery();
 
-  if (!token) {
-    // If not authenticated, redirect to login
+  if (isLoading) return null;
+
+  if (!user) {
     return <Redirect href="/(auth)/login" />;
   }
 

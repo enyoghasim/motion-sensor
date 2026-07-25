@@ -1,3 +1,4 @@
+import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { getQueryClient } from "@/modules/shared/services/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
@@ -8,6 +9,22 @@ import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
+
+function AppGate() {
+  const { isLoading } = useCurrentUserQuery();
+
+  return (
+    <>
+      <AnimatedSplashOverlay ready={!isLoading} />
+      {/* <Slot /> */}
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+    </>
+  );
+}
 
 export default function TabLayout() {
   const queryClient = getQueryClient();
@@ -28,13 +45,7 @@ export default function TabLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AnimatedSplashOverlay />
-      {/* <Slot /> */}
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      />
+      <AppGate />
     </QueryClientProvider>
   );
 }
