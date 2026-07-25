@@ -5,6 +5,8 @@ import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, { Easing, Keyframe } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
+import { OrbitingLogo } from './orbiting-logo';
+
 const INITIAL_SCALE_FACTOR = Dimensions.get('screen').height / 90;
 const DURATION = 600;
 
@@ -18,11 +20,17 @@ export function AnimatedSplashOverlay({ ready }: AnimatedSplashOverlayProps) {
   const [animate, setAnimate] = useState(false);
   const [visible, setVisible] = useState(true);
 
+  // Hide the native splash as soon as we've laid out, regardless of whether
+  // the auth check is done -- that way the orbiting logo below is what's
+  // actually on screen during the wait, instead of a frozen native splash.
+  useEffect(() => {
+    if (!laidOut) return;
+    SplashScreen.hideAsync().catch(() => {});
+  }, [laidOut]);
+
   useEffect(() => {
     if (!laidOut || !ready || animate) return;
-    SplashScreen.hideAsync().finally(() => {
-      setAnimate(true);
-    });
+    setAnimate(true);
   }, [laidOut, ready, animate]);
 
   if (!visible) return null;
@@ -46,8 +54,6 @@ export function AnimatedSplashOverlay({ ready }: AnimatedSplashOverlayProps) {
     },
   });
 
-  const image = <Image style={styles.image} source={require('@/assets/images/logo.png')} />;
-
   return animate ? (
     <Animated.View
       entering={splashKeyframe.duration(DURATION).withCallback((finished) => {
@@ -57,11 +63,11 @@ export function AnimatedSplashOverlay({ ready }: AnimatedSplashOverlayProps) {
         }
       })}
       style={styles.splashOverlay}>
-      {image}
+      <Image style={styles.image} source={require('@/assets/images/logo.png')} />
     </Animated.View>
   ) : (
     <View onLayout={() => setLaidOut(true)} style={styles.splashOverlay}>
-      {image}
+      <OrbitingLogo size={96} />
     </View>
   );
 }
