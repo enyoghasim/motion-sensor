@@ -7,18 +7,13 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Modal,
-  Pressable,
-  View,
-} from "react-native";
+import { FlatList, Modal, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/modules/shared/components/button";
 import { ErrorMessage } from "@/modules/shared/components/error-message";
 import { Input } from "@/modules/shared/components/input";
+import { Spinner } from "@/modules/shared/components/spinner";
 import { ThemedText } from "@/modules/shared/components/themed-text";
 import {
   IconPickerGrid,
@@ -145,7 +140,7 @@ export default function SpaceManagementScreen() {
 
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator color="#ffffff" />
+            <Spinner color="#ffffff" size={28} />
           </View>
         ) : spaces.length === 0 ? (
           <View className="flex-1 items-center justify-center px-6">

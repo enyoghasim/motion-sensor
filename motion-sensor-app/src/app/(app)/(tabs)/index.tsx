@@ -9,13 +9,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Modal,
-  Pressable,
-  View,
-} from "react-native";
+import { FlatList, Modal, Pressable, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -24,6 +18,7 @@ import {
 import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { DeviceCard } from "@/modules/devices/components/device-card";
 import { useGetSpaceDevices } from "@/modules/devices/services/device.query";
+import { Spinner } from "@/modules/shared/components/spinner";
 import { ThemedText } from "@/modules/shared/components/themed-text";
 import { resolveSpaceIcon } from "@/modules/spaces/lib/icon-registry";
 import { useSelectedSpaceStore } from "@/modules/spaces/store/selected-space.store";
@@ -161,7 +156,7 @@ export default function AppIndex() {
 
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator color="#ffffff" />
+            <Spinner color="#ffffff" size={28} />
           </View>
         ) : devices.length === 0 ? (
           <View className="flex-1 items-center justify-center px-6">
