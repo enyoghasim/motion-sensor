@@ -3,7 +3,6 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   Hexagon01Icon,
-  Home01Icon,
   PlusSignIcon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
@@ -26,6 +25,7 @@ import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { DeviceCard } from "@/modules/devices/components/device-card";
 import { useGetSpaceDevices } from "@/modules/devices/services/device.query";
 import { ThemedText } from "@/modules/shared/components/themed-text";
+import { resolveSpaceIcon } from "@/modules/spaces/lib/icon-registry";
 import { useSelectedSpaceStore } from "@/modules/spaces/store/selected-space.store";
 import { useSpacesQuery } from "@/modules/spaces/services/space.query";
 
@@ -98,7 +98,7 @@ export default function AppIndex() {
                     className="flex-row items-center gap-3 px-4 py-3 active:bg-zinc-800"
                   >
                     <HugeiconsIcon
-                      icon={Home01Icon}
+                      icon={resolveSpaceIcon(space.icon)}
                       size={18}
                       color="#ffffff"
                     />

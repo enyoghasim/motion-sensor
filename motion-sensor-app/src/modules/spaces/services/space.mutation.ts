@@ -7,11 +7,26 @@ import { Space } from '../types';
 import { SPACE_ENDPOINTS } from './space.endpoints';
 
 export const useCreateSpaceMutation = () => {
-  return useMutation<Space, ApiError, string>(
+  return useMutation<Space, ApiError, { name: string; icon: string }>(
     buildMutationOptions(spaceKeys.all, {
-      mutationFn: async (name: string) => {
+      mutationFn: async ({ name, icon }) => {
         try {
-          const { data } = await api.post(SPACE_ENDPOINTS.create, { name });
+          const { data } = await api.post(SPACE_ENDPOINTS.create, { name, icon });
+          return validateApiResponse<Space>(data);
+        } catch (error) {
+          throw handleApiError(error);
+        }
+      },
+    })
+  );
+};
+
+export const useUpdateSpaceMutation = () => {
+  return useMutation<Space, ApiError, { id: number; name: string; icon: string }>(
+    buildMutationOptions(spaceKeys.all, {
+      mutationFn: async ({ id, name, icon }) => {
+        try {
+          const { data } = await api.patch(SPACE_ENDPOINTS.update(id), { name, icon });
           return validateApiResponse<Space>(data);
         } catch (error) {
           throw handleApiError(error);
