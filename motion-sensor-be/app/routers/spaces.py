@@ -44,3 +44,13 @@ async def update_space(
 ):
     space = await service.update_space(current_user, space_id, request.name, request.icon)
     return success_response(message="Space updated successfully", data=space)
+
+
+@router.delete("/{space_id}")
+async def delete_space(
+    space_id: int,
+    current_user: User = Depends(get_current_verified_user),
+    service: SpaceService = Depends(get_space_service),
+):
+    await service.delete_space(current_user, space_id)
+    return success_response(message="Space deleted successfully")

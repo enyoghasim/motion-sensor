@@ -35,3 +35,14 @@ class SpaceService:
             space.icon = icon
 
         return await self.repository.update(space)
+
+    async def delete_space(self, user: User, space_id: int) -> None:
+        space = await self.repository.get_by_id(space_id)
+        if not space:
+            raise HTTPException(status_code=404, detail="Space not found.")
+
+        if space.owner_id != user.id:
+            raise HTTPException(status_code=403, detail="You do not own this space.")
+
+        await self.repository.unassign_devices(space_id)
+        await self.repository.delete(space)

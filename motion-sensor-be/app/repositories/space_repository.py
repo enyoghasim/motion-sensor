@@ -1,7 +1,9 @@
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.models import Space
+from app.models.device import Device
 
 
 class SpaceRepository:
@@ -29,3 +31,12 @@ class SpaceRepository:
         await self.db.commit()
         await self.db.refresh(space)
         return space
+
+    async def unassign_devices(self, space_id: int) -> None:
+        await self.db.execute(
+            update(Device).where(Device.space_id == space_id).values(space_id=None)
+        )
+
+    async def delete(self, space: Space) -> None:
+        await self.db.delete(space)
+        await self.db.commit()
