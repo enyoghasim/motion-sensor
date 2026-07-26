@@ -131,7 +131,7 @@ export function EmailVerificationOverlay({
           </View>
 
           {isChangingEmail ? (
-            <View className="gap-3">
+            <View key="change-email-panel" className="gap-3">
               {changeEmailMutation.error && (
                 <ErrorMessage
                   message={changeEmailMutation.error.errors}
@@ -176,7 +176,7 @@ export function EmailVerificationOverlay({
               </View>
             </View>
           ) : (
-            <View className="gap-3">
+            <View key="otp-panel" className="gap-3">
               {verifyMutation.error && (
                 <ErrorMessage
                   message={verifyMutation.error.errors}
