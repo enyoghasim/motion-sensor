@@ -20,7 +20,10 @@ import { Button } from "@/modules/shared/components/button";
 import { ErrorMessage } from "@/modules/shared/components/error-message";
 import { Input } from "@/modules/shared/components/input";
 import { ThemedText } from "@/modules/shared/components/themed-text";
-import { IconPickerGrid, SpaceIconAvatar } from "@/modules/spaces/components/icon-picker";
+import {
+  IconPickerGrid,
+  SpaceIconAvatar,
+} from "@/modules/spaces/components/icon-picker";
 import {
   DEFAULT_SPACE_ICON_KEY,
   isSpaceIconKey,
@@ -49,9 +52,12 @@ export default function SpaceManagementScreen() {
   const [editingSpace, setEditingSpace] = useState<Space | null>(null);
   const [isEditIconPickerOpen, setIsEditIconPickerOpen] = useState(false);
   const [editName, setEditName] = useState("");
-  const [editIcon, setEditIcon] = useState<SpaceIconKey>(DEFAULT_SPACE_ICON_KEY);
+  const [editIcon, setEditIcon] = useState<SpaceIconKey>(
+    DEFAULT_SPACE_ICON_KEY,
+  );
 
   const [deletingSpace, setDeletingSpace] = useState<Space | null>(null);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const closeModal = () => {
     setIsCreateOpen(false);
@@ -65,14 +71,16 @@ export default function SpaceManagementScreen() {
     if (!name.trim()) return;
     createMutation.mutate(
       { name: name.trim(), icon },
-      { onSuccess: () => closeModal() }
+      { onSuccess: () => closeModal() },
     );
   };
 
   const openEdit = (space: Space) => {
     setEditingSpace(space);
     setEditName(space.name);
-    setEditIcon(isSpaceIconKey(space.icon) ? space.icon : DEFAULT_SPACE_ICON_KEY);
+    setEditIcon(
+      isSpaceIconKey(space.icon) ? space.icon : DEFAULT_SPACE_ICON_KEY,
+    );
     setIsEditIconPickerOpen(false);
   };
 
@@ -88,12 +96,17 @@ export default function SpaceManagementScreen() {
     if (!editingSpace || !editName.trim()) return;
     updateMutation.mutate(
       { id: editingSpace.id, name: editName.trim(), icon: editIcon },
-      { onSuccess: () => closeEdit() }
+      { onSuccess: () => closeEdit() },
     );
   };
 
+  const openDeleteConfirm = (space: Space) => {
+    setDeletingSpace(space);
+    setIsDeleteConfirmOpen(true);
+  };
+
   const closeDeleteConfirm = () => {
-    setDeletingSpace(null);
+    setIsDeleteConfirmOpen(false);
     deleteMutation.reset();
   };
 
@@ -101,7 +114,7 @@ export default function SpaceManagementScreen() {
     if (!deletingSpace) return;
     deleteMutation.mutate(
       { id: deletingSpace.id },
-      { onSuccess: () => closeDeleteConfirm() }
+      { onSuccess: () => closeDeleteConfirm() },
     );
   };
 
@@ -150,7 +163,11 @@ export default function SpaceManagementScreen() {
                 onPress={() => router.push(`/spaces/${item.id}`)}
                 className="flex-row items-center gap-3 rounded-2xl bg-zinc-900 px-4 py-4 active:bg-zinc-800"
               >
-                <HugeiconsIcon icon={resolveSpaceIcon(item.icon)} size={20} color="#ffffff" />
+                <HugeiconsIcon
+                  icon={resolveSpaceIcon(item.icon)}
+                  size={20}
+                  color="#ffffff"
+                />
                 <ThemedText variant="md" className="flex-1">
                   {item.name}
                 </ThemedText>
@@ -160,16 +177,25 @@ export default function SpaceManagementScreen() {
                   className="h-8 w-8 items-center justify-center"
                 >
                   <View pointerEvents="none">
-                    <HugeiconsIcon icon={PencilEdit01Icon} size={18} color="#71717a" />
+                    <HugeiconsIcon
+                      icon={PencilEdit01Icon}
+                      size={18}
+                      color="#71717a"
+                    />
                   </View>
                 </Pressable>
                 <Pressable
                   hitSlop={12}
-                  onPress={() => setDeletingSpace(item)}
+                  onPress={() => openDeleteConfirm(item)}
                   className="h-8 w-8 items-center justify-center"
                 >
                   <View pointerEvents="none">
-                    <HugeiconsIcon icon={Delete02Icon} size={18} color="#71717a" />
+                    <HugeiconsIcon
+                      icon={Delete02Icon}
+                      size={18}
+                      color="#ef4444"
+                      className=" text-danger-hover"
+                    />
                   </View>
                 </Pressable>
               </Pressable>
@@ -207,7 +233,10 @@ export default function SpaceManagementScreen() {
                   New space
                 </ThemedText>
 
-                <SpaceIconAvatar icon={icon} onPress={() => setIsCreateIconPickerOpen(true)} />
+                <SpaceIconAvatar
+                  icon={icon}
+                  onPress={() => setIsCreateIconPickerOpen(true)}
+                />
 
                 <Input
                   label="Space name"
@@ -265,7 +294,10 @@ export default function SpaceManagementScreen() {
                   Edit space
                 </ThemedText>
 
-                <SpaceIconAvatar icon={editIcon} onPress={() => setIsEditIconPickerOpen(true)} />
+                <SpaceIconAvatar
+                  icon={editIcon}
+                  onPress={() => setIsEditIconPickerOpen(true)}
+                />
 
                 <Input
                   label="Space name"
@@ -295,7 +327,7 @@ export default function SpaceManagementScreen() {
       </Modal>
 
       <Modal
-        visible={deletingSpace !== null}
+        visible={isDeleteConfirmOpen}
         transparent
         animationType="fade"
         onRequestClose={closeDeleteConfirm}
