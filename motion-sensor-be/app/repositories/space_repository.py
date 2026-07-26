@@ -13,8 +13,18 @@ class SpaceRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def create(self, name: str, owner_id: int) -> Space:
-        space = Space(name=name, owner_id=owner_id)
+    async def get_by_id(self, space_id: int) -> Space | None:
+        result = await self.db.execute(select(Space).filter(Space.id == space_id))
+        return result.scalars().first()
+
+    async def create(self, name: str, owner_id: int, icon: str = "Home01Icon") -> Space:
+        space = Space(name=name, owner_id=owner_id, icon=icon)
+        self.db.add(space)
+        await self.db.commit()
+        await self.db.refresh(space)
+        return space
+
+    async def update(self, space: Space) -> Space:
         self.db.add(space)
         await self.db.commit()
         await self.db.refresh(space)

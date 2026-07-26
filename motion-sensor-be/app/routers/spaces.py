@@ -31,5 +31,16 @@ async def create_space(
     current_user: User = Depends(get_current_verified_user),
     service: SpaceService = Depends(get_space_service),
 ):
-    space = await service.create_space(current_user, request.name)
+    space = await service.create_space(current_user, request.name, request.icon)
     return success_response(message="Space created successfully", data=space)
+
+
+@router.patch("/{space_id}", response_model=SuccessResponseModel[schemas.SpaceOut])
+async def update_space(
+    space_id: int,
+    request: schemas.SpaceUpdate,
+    current_user: User = Depends(get_current_verified_user),
+    service: SpaceService = Depends(get_space_service),
+):
+    space = await service.update_space(current_user, space_id, request.name, request.icon)
+    return success_response(message="Space updated successfully", data=space)
