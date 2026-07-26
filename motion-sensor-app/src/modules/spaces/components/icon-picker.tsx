@@ -19,7 +19,10 @@ type SpaceIconAvatarProps = {
 export function SpaceIconAvatar({ icon, onPress }: SpaceIconAvatarProps) {
   return (
     <Pressable onPress={onPress} className="items-center gap-2 self-center">
-      <View className="h-16 w-16 items-center justify-center rounded-full bg-zinc-800 active:bg-zinc-700">
+      <View
+        pointerEvents="none"
+        className="h-16 w-16 items-center justify-center rounded-full bg-zinc-800 active:bg-zinc-700"
+      >
         <HugeiconsIcon icon={resolveSpaceIcon(icon)} size={28} color="#ffffff" />
       </View>
       <ThemedText variant="xs" className="text-zinc-500">
@@ -43,7 +46,9 @@ export function IconPickerGrid({ selected, onSelect, onClose }: IconPickerGridPr
         hitSlop={12}
         className="flex-row items-center gap-2 self-start"
       >
-        <HugeiconsIcon icon={ArrowLeft01Icon} size={20} color="#ffffff" />
+        <View pointerEvents="none">
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={20} color="#ffffff" />
+        </View>
         <ThemedText variant="lg" weight="medium">
           Choose an icon
         </ThemedText>
@@ -66,11 +71,13 @@ export function IconPickerGrid({ selected, onSelect, onClose }: IconPickerGridPr
                 isSelected ? "bg-white" : "bg-zinc-800 active:bg-zinc-700"
               )}
             >
-              <HugeiconsIcon
-                icon={SPACE_ICON_REGISTRY[item]}
-                size={24}
-                color={isSelected ? "#000000" : "#ffffff"}
-              />
+              <View pointerEvents="none">
+                <HugeiconsIcon
+                  icon={SPACE_ICON_REGISTRY[item]}
+                  size={24}
+                  color={isSelected ? "#000000" : "#ffffff"}
+                />
+              </View>
             </Pressable>
           );
         }}
