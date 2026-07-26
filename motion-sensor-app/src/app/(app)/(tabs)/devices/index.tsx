@@ -49,7 +49,7 @@ export default function DevicesScreen() {
           <PullToRefreshList
             data={devices}
             keyExtractor={(item) => item.id}
-            contentContainerClassName="flex-1 gap-4 px-6 pb-6"
+            contentContainerClassName="grow gap-4 px-6 pb-6"
             renderItem={({ item }) => <DeviceCard device={item} />}
             onRefresh={refetch}
             lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}

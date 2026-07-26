@@ -152,7 +152,7 @@ export default function SpaceManagementScreen() {
           <PullToRefreshList
             data={spaces}
             keyExtractor={(item) => String(item.id)}
-            contentContainerClassName="flex-1 gap-2 px-6 pb-6"
+            contentContainerClassName="grow gap-2 px-6 pb-6"
             onRefresh={refetch}
             lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}
             ListEmptyComponent={
