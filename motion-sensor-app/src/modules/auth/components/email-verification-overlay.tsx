@@ -103,7 +103,12 @@ export function EmailVerificationOverlay({
             className="h-9 w-9 items-center justify-center"
           >
             <View pointerEvents="none">
-              <HugeiconsIcon icon={Logout01Icon} size={22} color="#B0B4BA" />
+              <HugeiconsIcon
+                icon={Logout01Icon}
+                size={22}
+                className=" text-danger-hover"
+                strokeWidth={2}
+              />
             </View>
           </Pressable>
         </View>
@@ -144,6 +149,9 @@ export function EmailVerificationOverlay({
                     onChangeText={onChange}
                     value={value}
                     autoCapitalize="none"
+                    autoCorrect={false}
+                    spellCheck={false}
+                    textContentType="emailAddress"
                     keyboardType="email-address"
                     error={changeEmailForm.formState.errors.email?.message}
                     size="lg"
