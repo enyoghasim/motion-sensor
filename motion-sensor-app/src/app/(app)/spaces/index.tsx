@@ -7,12 +7,13 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { router } from "expo-router";
 import { useState } from "react";
-import { FlatList, Modal, Pressable, View } from "react-native";
+import { Modal, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/modules/shared/components/button";
 import { ErrorMessage } from "@/modules/shared/components/error-message";
 import { Input } from "@/modules/shared/components/input";
+import { PullToRefreshList } from "@/modules/shared/components/pull-to-refresh-list";
 import { Spinner } from "@/modules/shared/components/spinner";
 import { ThemedText } from "@/modules/shared/components/themed-text";
 import {
@@ -34,7 +35,12 @@ import { useSpacesQuery } from "@/modules/spaces/services/space.query";
 import { Space } from "@/modules/spaces/types";
 
 export default function SpaceManagementScreen() {
-  const { data: spaces = [], isLoading } = useSpacesQuery();
+  const {
+    data: spaces = [],
+    isLoading,
+    refetch,
+    dataUpdatedAt,
+  } = useSpacesQuery();
   const createMutation = useCreateSpaceMutation();
   const updateMutation = useUpdateSpaceMutation();
   const deleteMutation = useDeleteSpaceMutation();
@@ -149,10 +155,12 @@ export default function SpaceManagementScreen() {
             </ThemedText>
           </View>
         ) : (
-          <FlatList
+          <PullToRefreshList
             data={spaces}
             keyExtractor={(item) => String(item.id)}
             contentContainerClassName="gap-2 px-6 pb-6"
+            onRefresh={refetch}
+            lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}
             renderItem={({ item }) => (
               <Pressable
                 onPress={() => router.push(`/spaces/${item.id}`)}

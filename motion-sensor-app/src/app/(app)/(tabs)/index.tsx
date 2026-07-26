@@ -9,7 +9,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, Modal, Pressable, View } from "react-native";
+import { Modal, Pressable, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -18,6 +18,7 @@ import {
 import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { DeviceCard } from "@/modules/devices/components/device-card";
 import { useGetSpaceDevices } from "@/modules/devices/services/device.query";
+import { PullToRefreshList } from "@/modules/shared/components/pull-to-refresh-list";
 import { Spinner } from "@/modules/shared/components/spinner";
 import { ThemedText } from "@/modules/shared/components/themed-text";
 import { resolveSpaceIcon } from "@/modules/spaces/lib/icon-registry";
@@ -42,10 +43,12 @@ export default function AppIndex() {
     }
   }, [spaces, selectedSpaceId, setSelectedSpaceId]);
 
-  const { data, isLoading } = useGetSpaceDevices(
-    selectedSpace?.id ?? null,
-    isVerified,
-  );
+  const {
+    data,
+    isLoading,
+    refetch,
+    dataUpdatedAt,
+  } = useGetSpaceDevices(selectedSpace?.id ?? null, isVerified);
   const devices = data?.items ?? [];
 
   const [isSpaceMenuOpen, setIsSpaceMenuOpen] = useState(false);
@@ -165,11 +168,13 @@ export default function AppIndex() {
             </ThemedText>
           </View>
         ) : (
-          <FlatList
+          <PullToRefreshList
             data={devices}
             keyExtractor={(item) => item.id}
             contentContainerClassName="gap-4 px-6 pb-6"
             renderItem={({ item }) => <DeviceCard device={item} />}
+            onRefresh={refetch}
+            lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}
           />
         )}
       </SafeAreaView>
