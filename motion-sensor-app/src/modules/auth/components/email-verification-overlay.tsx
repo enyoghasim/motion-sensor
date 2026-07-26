@@ -58,7 +58,9 @@ export function EmailVerificationOverlay({
   }, []);
 
   const onSubmit = (data: EmailVerificationValues) => {
-    verifyMutation.mutate(data.otp);
+    verifyMutation.mutate(data.otp, {
+      onSuccess: () => toast.success("Email verified"),
+    });
   };
 
   const onResend = () => {
