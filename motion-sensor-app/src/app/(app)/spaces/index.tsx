@@ -1,10 +1,14 @@
-import { ArrowLeft01Icon, PencilEdit01Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowLeft01Icon,
+  Delete02Icon,
+  PencilEdit01Icon,
+  PlusSignIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -47,6 +51,8 @@ export default function SpaceManagementScreen() {
   const [editName, setEditName] = useState("");
   const [editIcon, setEditIcon] = useState<SpaceIconKey>(DEFAULT_SPACE_ICON_KEY);
 
+  const [deletingSpace, setDeletingSpace] = useState<Space | null>(null);
+
   const closeModal = () => {
     setIsCreateOpen(false);
     setIsCreateIconPickerOpen(false);
@@ -76,7 +82,6 @@ export default function SpaceManagementScreen() {
     setEditName("");
     setEditIcon(DEFAULT_SPACE_ICON_KEY);
     updateMutation.reset();
-    deleteMutation.reset();
   };
 
   const onSaveEdit = () => {
@@ -87,22 +92,16 @@ export default function SpaceManagementScreen() {
     );
   };
 
-  const onDeleteEdit = () => {
-    if (!editingSpace) return;
-    const space = editingSpace;
-    Alert.alert(
-      "Delete space",
-      `Delete "${space.name}"? Devices in this space will become unassigned.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            deleteMutation.mutate({ id: space.id }, { onSuccess: () => closeEdit() });
-          },
-        },
-      ]
+  const closeDeleteConfirm = () => {
+    setDeletingSpace(null);
+    deleteMutation.reset();
+  };
+
+  const onConfirmDelete = () => {
+    if (!deletingSpace) return;
+    deleteMutation.mutate(
+      { id: deletingSpace.id },
+      { onSuccess: () => closeDeleteConfirm() }
     );
   };
 
@@ -160,7 +159,18 @@ export default function SpaceManagementScreen() {
                   onPress={() => openEdit(item)}
                   className="h-8 w-8 items-center justify-center"
                 >
-                  <HugeiconsIcon icon={PencilEdit01Icon} size={18} color="#71717a" />
+                  <View pointerEvents="none">
+                    <HugeiconsIcon icon={PencilEdit01Icon} size={18} color="#71717a" />
+                  </View>
+                </Pressable>
+                <Pressable
+                  hitSlop={12}
+                  onPress={() => setDeletingSpace(item)}
+                  className="h-8 w-8 items-center justify-center"
+                >
+                  <View pointerEvents="none">
+                    <HugeiconsIcon icon={Delete02Icon} size={18} color="#71717a" />
+                  </View>
                 </Pressable>
               </Pressable>
             )}
@@ -272,29 +282,63 @@ export default function SpaceManagementScreen() {
                   />
                 )}
 
-                {deleteMutation.error && (
-                  <ErrorMessage
-                    message={deleteMutation.error.errors}
-                    fallback="Couldn't delete the space. Please try again."
-                  />
-                )}
-
                 <Button
                   title={updateMutation.isPending ? "Saving..." : "Save"}
                   onPress={onSaveEdit}
                   loading={updateMutation.isPending}
-                  disabled={!editName.trim() || deleteMutation.isPending}
-                />
-
-                <Button
-                  title={deleteMutation.isPending ? "Deleting..." : "Delete space"}
-                  variant="danger"
-                  onPress={onDeleteEdit}
-                  loading={deleteMutation.isPending}
-                  disabled={updateMutation.isPending}
+                  disabled={!editName.trim()}
                 />
               </>
             )}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <Modal
+        visible={deletingSpace !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={closeDeleteConfirm}
+      >
+        <Pressable
+          className="flex-1 items-center justify-center bg-black/60 px-6"
+          onPress={closeDeleteConfirm}
+        >
+          <Pressable
+            onPress={(event) => event.stopPropagation()}
+            className="w-full gap-4 rounded-2xl bg-zinc-900 p-6"
+          >
+            <ThemedText variant="lg" weight="medium">
+              Delete space
+            </ThemedText>
+
+            <ThemedText variant="sm" className="text-zinc-400">
+              {`Delete "${deletingSpace?.name}"? Devices in this space will become unassigned.`}
+            </ThemedText>
+
+            {deleteMutation.error && (
+              <ErrorMessage
+                message={deleteMutation.error.errors}
+                fallback="Couldn't delete the space. Please try again."
+              />
+            )}
+
+            <View className="flex-row gap-3">
+              <Button
+                title="Cancel"
+                variant="outline-dark"
+                onPress={closeDeleteConfirm}
+                disabled={deleteMutation.isPending}
+                className="flex-1"
+              />
+              <Button
+                title={deleteMutation.isPending ? "Deleting..." : "Delete"}
+                variant="danger"
+                onPress={onConfirmDelete}
+                loading={deleteMutation.isPending}
+                className="flex-1"
+              />
+            </View>
           </Pressable>
         </Pressable>
       </Modal>
