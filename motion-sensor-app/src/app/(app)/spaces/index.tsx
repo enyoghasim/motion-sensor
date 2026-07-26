@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -24,6 +25,7 @@ import {
 } from "@/modules/spaces/lib/icon-registry";
 import {
   useCreateSpaceMutation,
+  useDeleteSpaceMutation,
   useUpdateSpaceMutation,
 } from "@/modules/spaces/services/space.mutation";
 import { useSpacesQuery } from "@/modules/spaces/services/space.query";
@@ -33,6 +35,7 @@ export default function SpaceManagementScreen() {
   const { data: spaces = [], isLoading } = useSpacesQuery();
   const createMutation = useCreateSpaceMutation();
   const updateMutation = useUpdateSpaceMutation();
+  const deleteMutation = useDeleteSpaceMutation();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreateIconPickerOpen, setIsCreateIconPickerOpen] = useState(false);
@@ -73,6 +76,7 @@ export default function SpaceManagementScreen() {
     setEditName("");
     setEditIcon(DEFAULT_SPACE_ICON_KEY);
     updateMutation.reset();
+    deleteMutation.reset();
   };
 
   const onSaveEdit = () => {
@@ -80,6 +84,25 @@ export default function SpaceManagementScreen() {
     updateMutation.mutate(
       { id: editingSpace.id, name: editName.trim(), icon: editIcon },
       { onSuccess: () => closeEdit() }
+    );
+  };
+
+  const onDeleteEdit = () => {
+    if (!editingSpace) return;
+    const space = editingSpace;
+    Alert.alert(
+      "Delete space",
+      `Delete "${space.name}"? Devices in this space will become unassigned.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteMutation.mutate({ id: space.id }, { onSuccess: () => closeEdit() });
+          },
+        },
+      ]
     );
   };
 
@@ -249,11 +272,26 @@ export default function SpaceManagementScreen() {
                   />
                 )}
 
+                {deleteMutation.error && (
+                  <ErrorMessage
+                    message={deleteMutation.error.errors}
+                    fallback="Couldn't delete the space. Please try again."
+                  />
+                )}
+
                 <Button
                   title={updateMutation.isPending ? "Saving..." : "Save"}
                   onPress={onSaveEdit}
                   loading={updateMutation.isPending}
-                  disabled={!editName.trim()}
+                  disabled={!editName.trim() || deleteMutation.isPending}
+                />
+
+                <Button
+                  title={deleteMutation.isPending ? "Deleting..." : "Delete space"}
+                  variant="danger"
+                  onPress={onDeleteEdit}
+                  loading={deleteMutation.isPending}
+                  disabled={updateMutation.isPending}
                 />
               </>
             )}

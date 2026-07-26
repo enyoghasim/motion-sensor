@@ -35,3 +35,18 @@ export const useUpdateSpaceMutation = () => {
     })
   );
 };
+
+export const useDeleteSpaceMutation = () => {
+  return useMutation<void, ApiError, { id: number }>(
+    buildMutationOptions(spaceKeys.all, {
+      mutationFn: async ({ id }) => {
+        try {
+          const { data } = await api.delete(SPACE_ENDPOINTS.delete(id));
+          validateApiResponse<void>(data);
+        } catch (error) {
+          throw handleApiError(error);
+        }
+      },
+    })
+  );
+};
