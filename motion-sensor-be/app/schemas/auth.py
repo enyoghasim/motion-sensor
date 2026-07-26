@@ -25,6 +25,9 @@ class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: Password
 
+class ChangeEmailRequest(BaseModel):
+    email: EmailStr
+
 class LoginUser(BaseModel):
     email: EmailStr
     password: Password

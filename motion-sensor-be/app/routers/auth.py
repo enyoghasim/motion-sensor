@@ -6,7 +6,7 @@ import random
 import string
 import uuid
 
-from app.schemas.auth import RegisterUser, LoginUser, Token, UserResponse, OTPRequest, OTPVerify, ResetPasswordRequest, ResetPasswordVerify, ResetPasswordResponse, ChangePasswordRequest
+from app.schemas.auth import RegisterUser, LoginUser, Token, UserResponse, OTPRequest, OTPVerify, ResetPasswordRequest, ResetPasswordVerify, ResetPasswordResponse, ChangePasswordRequest, ChangeEmailRequest
 from app.core.database import get_db
 from app.models.user import User
 from app.core.security import get_password_hash, verify_password, create_session_token, get_current_user, oauth2_scheme
@@ -158,6 +158,40 @@ async def verify_otp(
     await redis_client.delete(otp_key)
     
     return success_response(message="OTP verified successfully")
+
+@router.post("/change-email", response_model=SuccessResponseModel[None])
+async def change_email(
+    request: ChangeEmailRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is already verified."
+        )
+
+    await check_rate_limit(f"rate_limit:change_email:{current_user.id}")
+
+    result = await db.execute(select(User).filter(User.email == request.email))
+    existing_user = result.scalars().first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The user with this email already exists in the system.",
+        )
+
+    current_user.email = request.email
+    db.add(current_user)
+    await db.commit()
+
+    await redis_client.delete(f"otp:{current_user.id}:email_verification")
+
+    otp, hashed_otp = await generate_and_hash_otp()
+    await redis_client.setex(f"otp:{current_user.id}:email_verification", 600, hashed_otp)
+    EmailService().enqueue_otp_email(current_user.email, otp)
+
+    return success_response(message="Email updated. A new verification code has been sent.")
 
 @router.post("/change-password", response_model=SuccessResponseModel[None])
 async def change_password(
