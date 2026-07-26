@@ -5,6 +5,7 @@ export const AUTH_ENDPOINTS = {
   otpRequest: '/auth/otp/request',
   otpVerify: '/auth/otp/verify',
   changePassword: '/auth/change-password',
+  changeEmail: '/auth/change-email',
   resetPasswordRequest: '/auth/reset-password/request',
   resetPasswordVerify: '/auth/reset-password/verify',
 } as const;

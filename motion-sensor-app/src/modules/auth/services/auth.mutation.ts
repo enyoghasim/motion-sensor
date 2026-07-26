@@ -125,6 +125,21 @@ export const useVerifyEmailMutation = () => {
   );
 };
 
+export const useChangeEmailMutation = () => {
+  return useMutation<null, ApiError, string>(
+    buildMutationOptions(userKeys.all, {
+      mutationFn: async (email: string) => {
+        try {
+          const { data } = await api.post(AUTH_ENDPOINTS.changeEmail, { email });
+          return validateApiResponse<null>(data);
+        } catch (error) {
+          throw handleApiError(error);
+        }
+      },
+    })
+  );
+};
+
 export const useLogoutMutation = () => {
   return useMutation(
     buildMutationOptions(userKeys.all, {

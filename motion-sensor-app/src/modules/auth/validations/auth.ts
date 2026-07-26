@@ -39,6 +39,12 @@ export const emailVerificationSchema = z.object({
 
 export type EmailVerificationValues = z.infer<typeof emailVerificationSchema>;
 
+export const changeEmailSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+});
+
+export type ChangeEmailValues = z.infer<typeof changeEmailSchema>;
+
 export const resetPasswordSchema = z
   .object({
     otp: z.string().length(6, 'Enter the 6-digit code'),
