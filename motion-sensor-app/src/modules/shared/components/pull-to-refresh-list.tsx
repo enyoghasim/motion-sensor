@@ -20,9 +20,10 @@ import { ThemedText } from "./themed-text";
 
 const HEADER_HEIGHT = 76;
 const PULL_THRESHOLD = 64;
-const MAX_PULL = 100;
-const LOADING_PULL = 56;
+const MAX_PULL = 110;
+const LOADING_PULL = HEADER_HEIGHT + 8;
 const ICON_SIZE = 16;
+const ACTIVATION_DISTANCE = 10;
 
 type PullPhase = "idle" | "release" | "loading";
 
@@ -139,6 +140,8 @@ export function PullToRefreshList<T>({
 }: PullToRefreshListProps<T>) {
   const scrollY = useSharedValue(0);
   const pull = useSharedValue(0);
+  const touchStartX = useSharedValue(0);
+  const touchStartY = useSharedValue(0);
   const phaseValue = useSharedValue<PullPhase>("idle");
   const [phase, setPhase] = useState<PullPhase>("idle");
   const listRef = useRef<FlatList<T>>(null);
@@ -169,9 +172,30 @@ export function PullToRefreshList<T>({
     scrollY.value = event.contentOffset.y;
   });
 
+  // Manual activation lets this gesture claim the touch mid-drag even when
+  // it starts on a nested Pressable (e.g. a list card): we inspect raw touch
+  // movement ourselves and only take over once vertical intent is clear,
+  // instead of losing the arbitration race to the item's own touch handler.
   const panGesture = Gesture.Pan()
-    .activeOffsetY(10)
-    .failOffsetX([-20, 20])
+    .manualActivation(true)
+    .onTouchesDown((event) => {
+      const touch = event.allTouches[0];
+      if (!touch) return;
+      touchStartX.value = touch.absoluteX;
+      touchStartY.value = touch.absoluteY;
+    })
+    .onTouchesMove((event, stateManager) => {
+      if (phaseValue.value === "loading" || scrollY.value > 0.5) return;
+      const touch = event.allTouches[0];
+      if (!touch) return;
+      const dx = touch.absoluteX - touchStartX.value;
+      const dy = touch.absoluteY - touchStartY.value;
+      if (dy > ACTIVATION_DISTANCE && dy > Math.abs(dx)) {
+        stateManager.activate();
+      } else if (Math.abs(dx) > ACTIVATION_DISTANCE || dy < 0) {
+        stateManager.fail();
+      }
+    })
     .onUpdate((event) => {
       if (phaseValue.value === "loading") return;
       if (scrollY.value > 0.5 || event.translationY <= 0) {
@@ -184,7 +208,8 @@ export function PullToRefreshList<T>({
         distance < MAX_PULL ? distance : MAX_PULL + (distance - MAX_PULL) * 0.2;
       phaseValue.value = pull.value >= PULL_THRESHOLD ? "release" : "idle";
     })
-    .onEnd(() => {
+    .onEnd((_event, success) => {
+      if (!success) return;
       if (phaseValue.value === "release") {
         phaseValue.value = "loading";
         pull.value = withTiming(LOADING_PULL, { duration: 150 });

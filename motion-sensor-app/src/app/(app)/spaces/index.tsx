@@ -148,19 +148,20 @@ export default function SpaceManagementScreen() {
           <View className="flex-1 items-center justify-center">
             <Spinner color="#ffffff" size={28} />
           </View>
-        ) : spaces.length === 0 ? (
-          <View className="flex-1 items-center justify-center px-6">
-            <ThemedText variant="md" className="text-center text-zinc-500">
-              No spaces yet. Tap + to create one.
-            </ThemedText>
-          </View>
         ) : (
           <PullToRefreshList
             data={spaces}
             keyExtractor={(item) => String(item.id)}
-            contentContainerClassName="gap-2 px-6 pb-6"
+            contentContainerClassName="flex-1 gap-2 px-6 pb-6"
             onRefresh={refetch}
             lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}
+            ListEmptyComponent={
+              <View className="flex-1 items-center justify-center px-6">
+                <ThemedText variant="md" className="text-center text-zinc-500">
+                  No spaces yet. Tap + to create one.
+                </ThemedText>
+              </View>
+            }
             renderItem={({ item }) => (
               <Pressable
                 onPress={() => router.push(`/spaces/${item.id}`)}
