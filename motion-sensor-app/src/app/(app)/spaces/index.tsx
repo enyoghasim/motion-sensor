@@ -15,7 +15,7 @@ import { Button } from "@/modules/shared/components/button";
 import { ErrorMessage } from "@/modules/shared/components/error-message";
 import { Input } from "@/modules/shared/components/input";
 import { ThemedText } from "@/modules/shared/components/themed-text";
-import { IconPicker, IconPickerField } from "@/modules/spaces/components/icon-picker";
+import { IconPickerGrid, SpaceIconAvatar } from "@/modules/spaces/components/icon-picker";
 import {
   DEFAULT_SPACE_ICON_KEY,
   isSpaceIconKey,
@@ -46,6 +46,7 @@ export default function SpaceManagementScreen() {
 
   const closeModal = () => {
     setIsCreateOpen(false);
+    setIsCreateIconPickerOpen(false);
     setName("");
     setIcon(DEFAULT_SPACE_ICON_KEY);
     createMutation.reset();
@@ -63,10 +64,12 @@ export default function SpaceManagementScreen() {
     setEditingSpace(space);
     setEditName(space.name);
     setEditIcon(isSpaceIconKey(space.icon) ? space.icon : DEFAULT_SPACE_ICON_KEY);
+    setIsEditIconPickerOpen(false);
   };
 
   const closeEdit = () => {
     setEditingSpace(null);
+    setIsEditIconPickerOpen(false);
     setEditName("");
     setEditIcon(DEFAULT_SPACE_ICON_KEY);
     updateMutation.reset();
@@ -156,43 +159,49 @@ export default function SpaceManagementScreen() {
             onPress={(event) => event.stopPropagation()}
             className="w-full gap-4 rounded-2xl bg-zinc-900 p-6"
           >
-            <ThemedText variant="lg" weight="medium">
-              New space
-            </ThemedText>
-
-            <Input
-              label="Space name"
-              value={name}
-              onChangeText={setName}
-              autoFocus
-              size="md"
-            />
-
-            <IconPickerField icon={icon} onPress={() => setIsCreateIconPickerOpen(true)} />
-
-            {createMutation.error && (
-              <ErrorMessage
-                message={createMutation.error.errors}
-                fallback="Couldn't create the space. Please try again."
+            {isCreateIconPickerOpen ? (
+              <IconPickerGrid
+                selected={icon}
+                onSelect={(key) => {
+                  setIcon(key);
+                  setIsCreateIconPickerOpen(false);
+                }}
+                onClose={() => setIsCreateIconPickerOpen(false)}
               />
-            )}
+            ) : (
+              <>
+                <ThemedText variant="lg" weight="medium">
+                  New space
+                </ThemedText>
 
-            <Button
-              title={createMutation.isPending ? "Creating..." : "Create"}
-              onPress={onCreate}
-              loading={createMutation.isPending}
-              disabled={!name.trim()}
-            />
+                <SpaceIconAvatar icon={icon} onPress={() => setIsCreateIconPickerOpen(true)} />
+
+                <Input
+                  label="Space name"
+                  value={name}
+                  onChangeText={setName}
+                  autoFocus
+                  size="md"
+                />
+
+                {createMutation.error && (
+                  <ErrorMessage
+                    message={createMutation.error.errors}
+                    fallback="Couldn't create the space. Please try again."
+                  />
+                )}
+
+                <Button
+                  title={createMutation.isPending ? "Creating..." : "Create"}
+                  onPress={onCreate}
+                  loading={createMutation.isPending}
+                  disabled={!name.trim()}
+                />
+              </>
+            )}
           </Pressable>
         </Pressable>
       </Modal>
-
-      <IconPicker
-        visible={isCreateIconPickerOpen}
-        selected={icon}
-        onSelect={setIcon}
-        onClose={() => setIsCreateIconPickerOpen(false)}
-      />
 
       <Modal
         visible={editingSpace !== null}
@@ -208,43 +217,49 @@ export default function SpaceManagementScreen() {
             onPress={(event) => event.stopPropagation()}
             className="w-full gap-4 rounded-2xl bg-zinc-900 p-6"
           >
-            <ThemedText variant="lg" weight="medium">
-              Edit space
-            </ThemedText>
-
-            <Input
-              label="Space name"
-              value={editName}
-              onChangeText={setEditName}
-              autoFocus
-              size="md"
-            />
-
-            <IconPickerField icon={editIcon} onPress={() => setIsEditIconPickerOpen(true)} />
-
-            {updateMutation.error && (
-              <ErrorMessage
-                message={updateMutation.error.errors}
-                fallback="Couldn't update the space. Please try again."
+            {isEditIconPickerOpen ? (
+              <IconPickerGrid
+                selected={editIcon}
+                onSelect={(key) => {
+                  setEditIcon(key);
+                  setIsEditIconPickerOpen(false);
+                }}
+                onClose={() => setIsEditIconPickerOpen(false)}
               />
-            )}
+            ) : (
+              <>
+                <ThemedText variant="lg" weight="medium">
+                  Edit space
+                </ThemedText>
 
-            <Button
-              title={updateMutation.isPending ? "Saving..." : "Save"}
-              onPress={onSaveEdit}
-              loading={updateMutation.isPending}
-              disabled={!editName.trim()}
-            />
+                <SpaceIconAvatar icon={editIcon} onPress={() => setIsEditIconPickerOpen(true)} />
+
+                <Input
+                  label="Space name"
+                  value={editName}
+                  onChangeText={setEditName}
+                  autoFocus
+                  size="md"
+                />
+
+                {updateMutation.error && (
+                  <ErrorMessage
+                    message={updateMutation.error.errors}
+                    fallback="Couldn't update the space. Please try again."
+                  />
+                )}
+
+                <Button
+                  title={updateMutation.isPending ? "Saving..." : "Save"}
+                  onPress={onSaveEdit}
+                  loading={updateMutation.isPending}
+                  disabled={!editName.trim()}
+                />
+              </>
+            )}
           </Pressable>
         </Pressable>
       </Modal>
-
-      <IconPicker
-        visible={isEditIconPickerOpen}
-        selected={editIcon}
-        onSelect={setEditIcon}
-        onClose={() => setIsEditIconPickerOpen(false)}
-      />
     </View>
   );
 }
