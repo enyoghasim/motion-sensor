@@ -1,4 +1,7 @@
-import { View } from "react-native";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { router } from "expo-router";
+import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
@@ -19,8 +22,18 @@ export default function DevicesScreen() {
   return (
     <View className="flex-1 bg-black">
       <SafeAreaView edges={["top"]} className="flex-1">
-        <View className="px-6 pb-4 pt-2">
-          <ThemedText variant="title">Devices</ThemedText>
+        <View className="flex-row items-center justify-between px-6 pb-4 pt-2">
+          <ThemedText variant="lg" weight="medium">
+            Devices
+          </ThemedText>
+
+          <Pressable
+            hitSlop={12}
+            onPress={() => router.push("/devices/add")}
+            className="h-9 w-9 items-center justify-center rounded-full border border-zinc-700"
+          >
+            <HugeiconsIcon icon={PlusSignIcon} size={18} color="#ffffff" />
+          </Pressable>
         </View>
 
         {isLoading ? (
