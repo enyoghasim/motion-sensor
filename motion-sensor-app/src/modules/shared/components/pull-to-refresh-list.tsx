@@ -1,27 +1,28 @@
-import {
-  ArrowDown01Icon,
-  ArrowUp01Icon,
-} from "@hugeicons/core-free-icons";
+import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useCallback, useRef, useState } from "react";
 import { FlatList, FlatListProps, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  Extrapolation,
+  interpolate,
   runOnJS,
   useAnimatedReaction,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 
 import { Spinner } from "./spinner";
 import { ThemedText } from "./themed-text";
 
-const HEADER_HEIGHT = 90;
+const HEADER_HEIGHT = 76;
 const PULL_THRESHOLD = 64;
 const MAX_PULL = 100;
-const LOADING_PULL = 60;
+const LOADING_PULL = 56;
+const ICON_SIZE = 16;
 
 type PullPhase = "idle" | "release" | "loading";
 
@@ -41,10 +42,51 @@ function formatLastUpdated(date: Date) {
   return `Last updated: ${datePart}, ${timePart}`;
 }
 
+function ArrowOrSpinner({
+  pull,
+  phase,
+}: {
+  pull: SharedValue<number>;
+  phase: PullPhase;
+}) {
+  const arrowStyle = useAnimatedStyle(() => {
+    const rotation =
+      phase === "idle"
+        ? interpolate(
+            pull.value,
+            [0, PULL_THRESHOLD],
+            [0, 180],
+            Extrapolation.CLAMP,
+          )
+        : 180;
+    return {
+      opacity: withTiming(phase === "loading" ? 0 : 1, { duration: 120 }),
+      transform: [{ rotate: `${rotation}deg` }],
+    };
+  });
+
+  const spinnerStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(phase === "loading" ? 1 : 0, { duration: 120 }),
+  }));
+
+  return (
+    <View style={{ height: ICON_SIZE, width: ICON_SIZE }}>
+      <Animated.View style={[{ position: "absolute" }, arrowStyle]}>
+        <HugeiconsIcon icon={ArrowDown01Icon} size={ICON_SIZE} color="#a1a1aa" />
+      </Animated.View>
+      <Animated.View style={[{ position: "absolute" }, spinnerStyle]}>
+        <Spinner size={ICON_SIZE} color="#a1a1aa" />
+      </Animated.View>
+    </View>
+  );
+}
+
 function PullToRefreshHeader({
+  pull,
   phase,
   lastUpdated,
 }: {
+  pull: SharedValue<number>;
   phase: PullPhase;
   lastUpdated: Date | null;
 }) {
@@ -58,21 +100,21 @@ function PullToRefreshHeader({
   return (
     <View
       pointerEvents="none"
-      style={{ position: "absolute", top: 0, left: 0, right: 0, height: HEADER_HEIGHT }}
-      className="items-center justify-end pb-3"
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: HEADER_HEIGHT,
+      }}
+      className="items-center justify-end pb-4"
     >
-      {phase === "loading" ? (
-        <Spinner size={20} color="#a1a1aa" />
-      ) : (
-        <HugeiconsIcon
-          icon={phase === "release" ? ArrowUp01Icon : ArrowDown01Icon}
-          size={20}
-          color="#a1a1aa"
-        />
-      )}
-      <ThemedText variant="sm" className="mt-2 text-zinc-400">
-        {label}
-      </ThemedText>
+      <View className="flex-row items-center gap-2">
+        <ArrowOrSpinner pull={pull} phase={phase} />
+        <ThemedText variant="sm" className="text-zinc-400">
+          {label}
+        </ThemedText>
+      </View>
       {lastUpdated && (
         <ThemedText variant="xs" className="mt-1 text-zinc-500">
           {formatLastUpdated(lastUpdated)}
@@ -161,7 +203,7 @@ export function PullToRefreshList<T>({
 
   return (
     <View style={{ flex: 1 }}>
-      <PullToRefreshHeader phase={phase} lastUpdated={lastUpdated} />
+      <PullToRefreshHeader pull={pull} phase={phase} lastUpdated={lastUpdated} />
       <GestureDetector gesture={composedGesture}>
         <Animated.View style={[{ flex: 1, backgroundColor: "#000" }, listStyle]}>
           <AnimatedFlatList

@@ -1,7 +1,6 @@
 import {
   BellIcon,
   ChevronDownIcon,
-  ChevronUpIcon,
   Hexagon01Icon,
   PlusSignIcon,
   Tick02Icon,
@@ -14,6 +13,11 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { DeviceCard } from "@/modules/devices/components/device-card";
@@ -30,7 +34,8 @@ export default function AppIndex() {
   const isVerified = !!user?.email_verified;
   const insets = useSafeAreaInsets();
 
-  const { data: spaces = [] } = useSpacesQuery(isVerified);
+  const { data: spaces = [], isLoading: isSpacesLoading } =
+    useSpacesQuery(isVerified);
 
   const { selectedSpaceId, setSelectedSpaceId } = useSelectedSpaceStore();
   const selectedSpace =
@@ -53,6 +58,16 @@ export default function AppIndex() {
 
   const [isSpaceMenuOpen, setIsSpaceMenuOpen] = useState(false);
 
+  const chevronRotation = useSharedValue(0);
+  useEffect(() => {
+    chevronRotation.value = withTiming(isSpaceMenuOpen ? 180 : 0, {
+      duration: 200,
+    });
+  }, [isSpaceMenuOpen, chevronRotation]);
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${chevronRotation.value}deg` }],
+  }));
+
   return (
     <View className="flex-1 bg-black">
       <SafeAreaView edges={["top"]} className="flex-1">
@@ -61,15 +76,20 @@ export default function AppIndex() {
             className="flex-row items-center gap-1"
             hitSlop={12}
             onPress={() => setIsSpaceMenuOpen(true)}
+            disabled={isSpacesLoading}
           >
-            <ThemedText variant="lg" weight="medium">
-              {selectedSpace?.name ?? ""}
-            </ThemedText>
-            <HugeiconsIcon
-              icon={isSpaceMenuOpen ? ChevronUpIcon : ChevronDownIcon}
-              size={20}
-              color="#ffffff"
-            />
+            {isSpacesLoading ? (
+              <Spinner size={16} color="#ffffff" />
+            ) : (
+              <>
+                <ThemedText variant="lg" weight="medium">
+                  {selectedSpace?.name ?? ""}
+                </ThemedText>
+                <Animated.View style={chevronStyle}>
+                  <HugeiconsIcon icon={ChevronDownIcon} size={20} color="#ffffff" />
+                </Animated.View>
+              </>
+            )}
           </Pressable>
 
           <Modal
