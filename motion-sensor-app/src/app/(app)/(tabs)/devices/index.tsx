@@ -1,0 +1,49 @@
+import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
+import { DeviceCard } from "@/modules/devices/components/device-card";
+import { useAllDevicesQuery } from "@/modules/devices/services/device.query";
+import { PullToRefreshList } from "@/modules/shared/components/pull-to-refresh-list";
+import { Spinner } from "@/modules/shared/components/spinner";
+import { ThemedText } from "@/modules/shared/components/themed-text";
+
+export default function DevicesScreen() {
+  const { data: user } = useCurrentUserQuery();
+  const isVerified = !!user?.email_verified;
+
+  const { data, isLoading, refetch, dataUpdatedAt } =
+    useAllDevicesQuery(isVerified);
+  const devices = data?.items ?? [];
+
+  return (
+    <View className="flex-1 bg-black">
+      <SafeAreaView edges={["top"]} className="flex-1">
+        <View className="px-6 pb-4 pt-2">
+          <ThemedText variant="title">Devices</ThemedText>
+        </View>
+
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <Spinner color="#ffffff" size={28} />
+          </View>
+        ) : devices.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-6">
+            <ThemedText variant="md" className="text-center text-zinc-500">
+              No devices yet.
+            </ThemedText>
+          </View>
+        ) : (
+          <PullToRefreshList
+            data={devices}
+            keyExtractor={(item) => item.id}
+            contentContainerClassName="gap-4 px-6 pb-6"
+            renderItem={({ item }) => <DeviceCard device={item} />}
+            onRefresh={refetch}
+            lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}
+          />
+        )}
+      </SafeAreaView>
+    </View>
+  );
+}

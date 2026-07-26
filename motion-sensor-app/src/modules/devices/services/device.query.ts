@@ -16,3 +16,16 @@ export const useGetSpaceDevices = (spaceId: number | null, enabled: boolean = tr
     },
   });
 };
+
+export const useAllDevicesQuery = (enabled: boolean = true) => {
+  return useQuery({
+    queryKey: deviceKeys.list({ spaceId: null }),
+    enabled,
+    queryFn: async () => {
+      const { data } = await api.get<DevicePaginatedResponse>(DEVICE_ENDPOINTS.list, {
+        params: { limit: 50 },
+      });
+      return data;
+    },
+  });
+};

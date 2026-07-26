@@ -17,6 +17,8 @@ export default function AppLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="spaces" />
+        <Stack.Screen name="account-settings" />
+        <Stack.Screen name="firmware-updates" />
       </Stack>
       {!user.email_verified && (
         <EmailVerificationOverlay email={user.email} />

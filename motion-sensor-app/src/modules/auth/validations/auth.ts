@@ -45,6 +45,19 @@ export const changeEmailSchema = z.object({
 
 export type ChangeEmailValues = z.infer<typeof changeEmailSchema>;
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Enter your current password'),
+    newPassword: newPasswordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+
 export const resetPasswordSchema = z
   .object({
     otp: z.string().length(6, 'Enter the 6-digit code'),

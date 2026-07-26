@@ -140,6 +140,27 @@ export const useChangeEmailMutation = () => {
   );
 };
 
+type ChangePasswordValues = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export const useChangePasswordMutation = () => {
+  return useMutation<null, ApiError, ChangePasswordValues>({
+    mutationFn: async ({ currentPassword, newPassword }) => {
+      try {
+        const { data } = await api.post(AUTH_ENDPOINTS.changePassword, {
+          current_password: currentPassword,
+          new_password: newPassword,
+        });
+        return validateApiResponse<null>(data);
+      } catch (error) {
+        throw handleApiError(error);
+      }
+    },
+  });
+};
+
 export const useLogoutMutation = () => {
   return useMutation(
     buildMutationOptions(userKeys.all, {
