@@ -169,12 +169,23 @@ export function PullToRefreshList<T>({
     scrollY.value = event.contentOffset.y;
   });
 
+  const isDraggingDown = useSharedValue(false);
+
   const panGesture = Gesture.Pan()
-    .activeOffsetY(10)
-    .failOffsetX([-20, 20])
+    .manualActivation(true)
+    .onTouchesMove((_event, state) => {
+      if (scrollY.value <= 1 && phaseValue.value !== "loading") {
+        state.activate();
+      } else {
+        state.fail();
+      }
+    })
+    .onStart(() => {
+      isDraggingDown.value = true;
+    })
     .onUpdate((event) => {
       if (phaseValue.value === "loading") return;
-      if (scrollY.value > 0.5 || event.translationY <= 0) {
+      if (event.translationY <= 0) {
         pull.value = 0;
         phaseValue.value = "idle";
         return;
@@ -185,11 +196,18 @@ export function PullToRefreshList<T>({
       phaseValue.value = pull.value >= PULL_THRESHOLD ? "release" : "idle";
     })
     .onEnd(() => {
+      isDraggingDown.value = false;
       if (phaseValue.value === "release") {
         phaseValue.value = "loading";
         pull.value = withTiming(LOADING_PULL, { duration: 150 });
         runOnJS(triggerRefresh)();
       } else if (phaseValue.value !== "loading") {
+        pull.value = withTiming(0, { duration: 200 });
+      }
+    })
+    .onFinalize(() => {
+      isDraggingDown.value = false;
+      if (phaseValue.value !== "loading" && phaseValue.value !== "release") {
         pull.value = withTiming(0, { duration: 200 });
       }
     });
