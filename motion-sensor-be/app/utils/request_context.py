@@ -7,11 +7,9 @@ def parse_device_info(user_agent: str | None) -> str:
         return "Unknown Device"
 
     ua = user_agent.lower()
-    if "expo" in ua or "cfnetwork" in ua or "darwin" in ua:
-        if "iphone" in ua or "ipad" in ua or "ios" in ua:
-            return "iOS App"
-        return "Mobile App (iOS)"
-    if "okhttp" in ua or "android" in ua:
+    if "iphone" in ua or "ipad" in ua or "ios" in ua or "expo" in ua or "cfnetwork" in ua:
+        return "iOS App"
+    if "android" in ua or "okhttp" in ua:
         return "Android App"
     if "chrome" in ua:
         return "Chrome Browser"
@@ -19,7 +17,7 @@ def parse_device_info(user_agent: str | None) -> str:
         return "Safari Browser"
     if "firefox" in ua:
         return "Firefox Browser"
-    if "curl" in ua or "postman" in ua:
+    if "curl" in ua or "postman" in ua or "httpx" in ua:
         return "API Client"
 
     return "Web Browser / Client"
