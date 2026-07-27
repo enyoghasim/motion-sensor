@@ -78,3 +78,7 @@ Public/device-facing endpoints (`/api/motion/report`, `/api/mqtt/auth`, `/health
   - `auth_headers(user)` — mints a real session token for a user via the same Redis-backed mechanism `create_session_token` uses, returns `{"Authorization": "Bearer ..."}`.
   - `fake_redis` — the actual `fakeredis` instance, for tests that need to assert/manipulate Redis state directly (e.g. an OTP hash, a rate-limit counter).
 - The old root-level `test_auth.py` / `test_admin.py` were ad hoc manual scripts (no assertions, stale endpoint paths) and have been replaced by the real suite under `tests/` — don't resurrect that pattern.
+
+# Commit & push
+
+Once a change is done and the full suite passes (`pytest`, run from `motion-sensor-be/`), commit and push it. Scope the commit to `motion-sensor-be/` only; don't sweep in unrelated changes from `motion-sensor-app/` or `motion-sensor-firmware/`.

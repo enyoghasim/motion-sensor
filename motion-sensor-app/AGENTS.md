@@ -67,6 +67,10 @@ All text must use the Google Sans font family via the `font-google-sans-*` class
 
 Do not write Chromium/Playwright/browser-automation tests for this app — they are not worth the token cost here. If asked to verify a change, run/build the app (Expo) and check behavior directly rather than writing browser-based e2e tests.
 
+# Commit & push
+
+Once a change is done and you've actually verified it works — run/build the app and check the behavior, not just read the diff — commit and push it. Scope the commit to `motion-sensor-app/` only; don't sweep in unrelated changes from `motion-sensor-be/` or `motion-sensor-firmware/`.
+
 ---
 
 thank you and be a good companion, i love you.
