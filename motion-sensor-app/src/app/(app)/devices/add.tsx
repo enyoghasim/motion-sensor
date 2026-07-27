@@ -1,12 +1,7 @@
-import { View, Text } from "react-native";
 import React from "react";
+import { AddDeviceView } from "@/modules/devices/components/add-device-view";
 
-const AddDevice = () => {
-  return (
-    <View>
-      <Text>AddDevice</Text>
-    </View>
-  );
-};
+export default function AddDeviceScreen() {
+  return <AddDeviceView />;
+}
 
-export default AddDevice;

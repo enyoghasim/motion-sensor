@@ -1,10 +1,10 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import {
   clearAuthSession,
   getAccessToken,
-} from '../../auth/services/auth-storage';
-import { AUTH_ENDPOINTS } from '../../auth/services/auth.endpoints';
-import { env } from './env';
+} from "../../auth/services/auth-storage";
+import { AUTH_ENDPOINTS } from "../../auth/services/auth.endpoints";
+import { env } from "./env";
 
 const api = axios.create({
   baseURL: env.EXPO_PUBLIC_API_URL,
@@ -31,7 +31,11 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  async (response) => {
+    //  mimic network delay
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    return response;
+  },
   async (error: AxiosError) => {
     if (
       error.response?.status === 401 &&
@@ -41,7 +45,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

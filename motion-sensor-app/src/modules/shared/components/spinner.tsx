@@ -21,8 +21,8 @@ export function Spinner({ size = 20, color = "#ffffff" }: SpinnerProps) {
 
   useEffect(() => {
     rotation.value = withRepeat(
-      withTiming(360, { duration: ROTATION_MS, easing: Easing.linear }),
-      -1
+      withTiming(180, { duration: ROTATION_MS, easing: Easing.linear }),
+      -1,
     );
   }, [rotation]);
 

@@ -14,6 +14,7 @@ export const useCurrentUserQuery = () => {
 
       try {
         const { data } = await api.get<ApiResponse<User>>(USER_ENDPOINTS.me);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         return data.data ?? null;
       } catch {
         return null;

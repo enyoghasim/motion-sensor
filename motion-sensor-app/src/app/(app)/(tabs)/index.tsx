@@ -22,6 +22,7 @@ import Animated, {
 import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { DeviceCard } from "@/modules/devices/components/device-card";
 import { useGetSpaceDevices } from "@/modules/devices/services/device.query";
+import { useNotificationUnreadCountQuery } from "@/modules/notifications/services/notification.query";
 import { PullToRefreshList } from "@/modules/shared/components/pull-to-refresh-list";
 import { Spinner } from "@/modules/shared/components/spinner";
 import { ThemedText } from "@/modules/shared/components/themed-text";
@@ -33,6 +34,10 @@ export default function AppIndex() {
   const { data: user } = useCurrentUserQuery();
   const isVerified = !!user?.email_verified;
   const insets = useSafeAreaInsets();
+
+  const { data: unreadSummary } = useNotificationUnreadCountQuery(isVerified);
+  const hasUnread = !!unreadSummary?.has_unread;
+
 
   const { data: spaces = [], isLoading: isSpacesLoading } =
     useSpacesQuery(isVerified);
@@ -164,10 +169,17 @@ export default function AppIndex() {
           </Modal>
 
           <View className="flex-row items-center gap-4">
-            <Pressable hitSlop={12} className="relative">
+            <Pressable
+              hitSlop={12}
+              onPress={() => router.push("/notifications")}
+              className="relative"
+            >
               <HugeiconsIcon icon={BellIcon} size={26} color="#ffffff" />
-              <View className="absolute right-0 top-0 h-2 w-2 rounded-full bg-orange-500" />
+              {hasUnread && (
+                <View className="absolute right-0 top-0 h-2 w-2 rounded-full bg-orange-500" />
+              )}
             </Pressable>
+
 
             <Pressable
               hitSlop={12}

@@ -2,7 +2,7 @@ import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
 import { getQueryClient } from "@/modules/shared/services/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Slot, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Toaster } from "sonner-native";
@@ -18,12 +18,12 @@ function AppGate() {
   return (
     <>
       <AnimatedSplashOverlay ready={!isLoading} />
-      {/* <Slot /> */}
-      <Stack
+      <Slot />
+      {/* <Stack
         screenOptions={{
           headerShown: false,
-        }}
-      />
+        }} */}
+      {/* /> */}
     </>
   );
 }
