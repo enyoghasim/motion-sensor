@@ -229,6 +229,43 @@ async def test_reset_password_flow_with_invalid_otp(client, make_user):
     assert verify_response.status_code == 400
 
 
+async def test_reset_password_flow_success(client, make_user, fake_redis, monkeypatch):
+    user = await make_user(email="resetsuccess@example.com", password="OldPassword1!", verified=True)
+
+    # Intercept OTP generation to know the plain OTP
+    from app.routers import auth as auth_router
+    async def mock_otp():
+        return "654321", auth_router.get_password_hash("654321")
+    
+    monkeypatch.setattr(auth_router, "generate_and_hash_otp", mock_otp)
+
+    request_response = await client.post(
+        "/auth/reset-password/request", json={"email": "resetsuccess@example.com"}
+    )
+    assert request_response.status_code == 200
+    request_id = request_response.json()["data"]["request_id"]
+
+    verify_response = await client.post(
+        "/auth/reset-password/verify",
+        json={"request_id": request_id, "otp": "654321", "new_password": "BrandNew1!"},
+    )
+    assert verify_response.status_code == 200
+    assert verify_response.json()["success"] is True
+
+    # Check login with old password fails
+    old_login = await client.post(
+        "/auth/signin", json={"email": "resetsuccess@example.com", "password": "OldPassword1!"}
+    )
+    assert old_login.status_code == 401
+
+    # Check login with new password succeeds
+    new_login = await client.post(
+        "/auth/signin", json={"email": "resetsuccess@example.com", "password": "BrandNew1!"}
+    )
+    assert new_login.status_code == 200
+    assert "access_token" in new_login.json()["data"]
+
+
 async def test_reset_password_request_does_not_leak_unknown_email(client):
     response = await client.post(
         "/auth/reset-password/request", json={"email": "doesnotexist@example.com"}
@@ -245,3 +282,4 @@ async def test_reset_password_verify_rejects_unknown_request_id(client):
     )
 
     assert response.status_code == 400
+
