@@ -1,5 +1,10 @@
-import { BellIcon, Tick02Icon } from "@hugeicons/core-free-icons";
+import {
+  ArrowLeft01Icon,
+  BellIcon,
+  Tick02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
+import { router } from "expo-router";
 import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -25,28 +30,39 @@ export default function NotificationsScreen() {
 
   return (
     <View className="flex-1 bg-black">
-      <SafeAreaView edges={["top"]} className="flex-1">
+      <SafeAreaView edges={["top", "bottom"]} className="flex-1">
+        {/* Header */}
         <View className="flex-row items-center justify-between px-6 pb-4 pt-2">
-          <ThemedText variant="subtitle" weight="bold">
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={12}
+            className="-ml-2 h-10 w-10 items-center justify-center"
+          >
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={28} color="#ffffff" />
+          </Pressable>
+
+          <ThemedText variant="lg" weight="medium">
             Notifications
           </ThemedText>
 
-
-          {hasUnread && (
+          {hasUnread ? (
             <Pressable
               hitSlop={12}
               onPress={() => markAllReadMutation.mutate()}
               disabled={markAllReadMutation.isPending}
-              className="flex-row items-center gap-1.5 rounded-full bg-zinc-900 px-3 py-1.5 border border-zinc-800"
+              className="flex-row items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1.5"
             >
               <HugeiconsIcon icon={Tick02Icon} size={14} color="#f97316" />
               <ThemedText variant="xs" weight="medium" className="text-orange-500">
-                Mark all read
+                Read all
               </ThemedText>
             </Pressable>
+          ) : (
+            <View className="h-10 w-10" />
           )}
         </View>
 
+        {/* Notification List */}
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
             <Spinner color="#ffffff" size={28} />

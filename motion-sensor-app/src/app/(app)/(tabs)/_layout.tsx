@@ -1,7 +1,6 @@
 import {
   Home01Icon,
   Database01Icon,
-  Notification01Icon,
   UserCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, IconSvgElement } from "@hugeicons/react-native";
@@ -23,17 +22,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useCurrentUserQuery } from "@/modules/auth/services/auth.query";
-import { useNotificationUnreadCountQuery } from "@/modules/notifications/services/notification.query";
 import { ThemedText } from "@/modules/shared/components/themed-text";
 import { cn } from "@/modules/shared/lib/util";
 
 export default function TabsLayout() {
-  const { data: user } = useCurrentUserQuery();
-  const isVerified = !!user?.email_verified;
-  const { data: unreadSummary } = useNotificationUnreadCountQuery(isVerified);
-  const hasUnread = !!unreadSummary?.has_unread;
-
   return (
     <Tabs className="flex-1 bg-black">
       <TabSlot style={{ flex: 1 }} />
@@ -44,11 +36,6 @@ export default function TabsLayout() {
           </TabTrigger>
           <TabTrigger name="devices" href="/devices" asChild>
             <TabButton icon={Database01Icon}>Devices</TabButton>
-          </TabTrigger>
-          <TabTrigger name="notifications" href="/notifications" asChild>
-            <TabButton icon={Notification01Icon} showDot={hasUnread}>
-              Notifications
-            </TabButton>
           </TabTrigger>
           <TabTrigger name="me" href="/me" asChild>
             <TabButton icon={UserCircleIcon}>Me</TabButton>
@@ -62,13 +49,11 @@ export default function TabsLayout() {
 type TabButtonProps = TabTriggerSlotProps & {
   icon: IconSvgElement;
   children: string;
-  showDot?: boolean;
 };
 
 function TabButton({
   icon,
   children,
-  showDot,
   isFocused,
   onPress,
   ...props
@@ -96,19 +81,14 @@ function TabButton({
     >
       <Animated.View
         style={animatedStyle}
-        className="items-center justify-center gap-1 relative"
+        className="items-center justify-center gap-1"
       >
-        <View className="relative">
-          <HugeiconsIcon
-            icon={icon}
-            size={24}
-            strokeWidth={2.2}
-            color={isFocused ? "#ffffff" : "#71717a"}
-          />
-          {showDot && (
-            <View className="absolute -right-1 -top-0.5 h-2.5 w-2.5 rounded-full bg-orange-500 border-2 border-black" />
-          )}
-        </View>
+        <HugeiconsIcon
+          icon={icon}
+          size={24}
+          strokeWidth={2.2}
+          color={isFocused ? "#ffffff" : "#71717a"}
+        />
         <ThemedText variant="sm" className={cn(!isFocused && "text-[#71717a]")}>
           {children}
         </ThemedText>
