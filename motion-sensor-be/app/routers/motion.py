@@ -8,9 +8,10 @@ from app.core.database import get_db
 from app.core.mqtt_client import MQTTClient, get_mqtt_client
 from app.repositories.motion_repository import MotionRepository
 from app.repositories.device_repository import DeviceRepository
+from app.repositories.notification_repository import NotificationRepository
 from app.services.motion_service import MotionService
 from app.models.user import User
-from app.core.security import get_current_user
+from app.core.security import get_current_verified_user
 
 router = APIRouter(prefix="/api/motion", tags=["Motion"])
 
@@ -18,7 +19,13 @@ def get_motion_service(
     db: AsyncSession = Depends(get_db),
     mqtt_client: MQTTClient = Depends(get_mqtt_client),
 ) -> MotionService:
-    return MotionService(MotionRepository(db), mqtt_client)
+    return MotionService(
+        MotionRepository(db),
+        mqtt_client,
+        device_repository=DeviceRepository(db),
+        notification_repository=NotificationRepository(db),
+    )
+
 
 def get_device_repository(db: AsyncSession = Depends(get_db)) -> DeviceRepository:
     return DeviceRepository(db)
@@ -28,7 +35,7 @@ async def get_latest_motion(
     device_id: uuid.UUID, 
     service: MotionService = Depends(get_motion_service),
     device_repo: DeviceRepository = Depends(get_device_repository),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_verified_user)
 ):
     device = await device_repo.get_by_id(device_id)
     if not device or device.owner_id != current_user.id:
@@ -43,7 +50,7 @@ async def get_motion_history(
     limit: int = Query(100, le=1000),
     service: MotionService = Depends(get_motion_service),
     device_repo: DeviceRepository = Depends(get_device_repository),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_verified_user)
 ):
     device = await device_repo.get_by_id(device_id)
     if not device or device.owner_id != current_user.id:

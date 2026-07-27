@@ -8,8 +8,8 @@ from sqladmin import Admin
 
 from app.core.mqtt_client import mqtt_client
 from app.core.database import engine
-from app.routers import devices, health, motion, auth, user, mqtt, spaces
-from app.admin import UserAdmin, DeviceAdmin, MotionEventAdmin
+from app.routers import devices, health, motion, auth, user, mqtt, spaces, notification
+from app.admin import UserAdmin, DeviceAdmin, MotionEventAdmin, NotificationAdmin
 
 
 @asynccontextmanager
@@ -26,6 +26,7 @@ admin = Admin(app, engine)
 admin.add_view(UserAdmin)
 admin.add_view(DeviceAdmin)
 admin.add_view(MotionEventAdmin)
+admin.add_view(NotificationAdmin)
 
 app.add_exception_handler(
     RequestValidationError,
@@ -43,5 +44,7 @@ app.include_router(motion.router)
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(spaces.router)
+app.include_router(notification.router)
 app.include_router(mqtt.router)
+
 

@@ -1,8 +1,12 @@
+import asyncio
+import random
 import secrets
+import string
 import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from app.core.database import get_db
 from app.models.user import User
 from app.core.redis_client import redis_client
@@ -22,13 +26,15 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     hashed_password_byte_enc = hashed_password.encode('utf-8')
     return bcrypt.checkpw(password_byte_enc, hashed_password_byte_enc)
 
+async def generate_and_hash_otp() -> tuple[str, str]:
+    otp = ''.join(random.choices(string.digits, k=6))
+    hashed_otp = await asyncio.to_thread(get_password_hash, otp)
+    return otp, hashed_otp
+
 async def create_session_token(user_id: int) -> str:
     token = secrets.token_urlsafe(32)
     await redis_client.setex(f"session:{token}", SESSION_EXPIRATION_SECONDS, str(user_id))
     return token
-import asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> User:
     user_id_str = await redis_client.get(f"session:{token}")
@@ -47,3 +53,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+async def get_current_verified_user(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email not verified",
+        )
+    return current_user
