@@ -171,7 +171,7 @@ export default function AppIndex() {
 
             <Pressable
               hitSlop={12}
-              onPress={() => router.push("/spaces/new")}
+              onPress={() => router.push("/(app)/devices/add")}
               className="h-8 w-8 items-center justify-center rounded-full border-[1.5px] border-white"
             >
               <HugeiconsIcon
