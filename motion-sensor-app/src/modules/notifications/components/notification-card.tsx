@@ -2,6 +2,7 @@ import {
   BellIcon,
   InformationCircleIcon,
   Motion02Icon,
+  SecurityCheckIcon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
@@ -22,12 +23,15 @@ export function NotificationCard({ notification }: NotificationCardProps) {
     switch (type) {
       case "motion":
         return Motion02Icon;
+      case "security":
+        return SecurityCheckIcon;
       case "system":
         return InformationCircleIcon;
       default:
         return BellIcon;
     }
   };
+
 
 
   const formattedDate = new Date(notification.created_at).toLocaleString([], {
