@@ -112,7 +112,6 @@ async def test_motion_report_creates_notification(
     user = await make_user(verified=True)
     headers = await auth_headers(user)
 
-    # Create a paired device for this user
     from app.models.device import Device
     device = Device(
         factory_mac="AA:BB:CC:DD:EE:FF",
@@ -124,17 +123,37 @@ async def test_motion_report_creates_notification(
     db_session.add(device)
     await db_session.commit()
 
-    # Report motion
     report_response = await client.post(
         "/api/motion/report",
         json={"device_id": str(device.id), "motion_detected": True},
     )
     assert report_response.status_code == 200
 
-    # Verify notification created
     notif_res = await client.get("/api/notifications", headers=headers)
     assert notif_res.status_code == 200
     items = notif_res.json()["data"]["items"]
     assert len(items) == 1
     assert items[0]["title"] == "Motion Detected"
     assert "Front Door Sensor" in items[0]["message"]
+
+
+async def test_login_creates_security_notification(client, make_user, auth_headers):
+    password = "SecurePassword123!"
+    user = await make_user(password=password, verified=True)
+
+    login_res = await client.post(
+        "/auth/signin",
+        json={"email": user.email, "password": password},
+        headers={"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)"},
+    )
+    assert login_res.status_code == 200
+    token = login_res.json()["data"]["access_token"]
+    user_headers = {"Authorization": f"Bearer {token}"}
+
+    notif_res = await client.get("/api/notifications", headers=user_headers)
+    assert notif_res.status_code == 200
+    items = notif_res.json()["data"]["items"]
+    assert len(items) == 1
+    assert items[0]["title"] == "Security Alert: New Login"
+    assert "iOS" in items[0]["message"]
+    assert items[0]["type"] == "security"

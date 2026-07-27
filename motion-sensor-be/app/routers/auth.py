@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 import asyncio
@@ -12,8 +12,10 @@ from app.models.user import User
 from app.core.security import get_password_hash, verify_password, create_session_token, get_current_user, oauth2_scheme
 from app.core.redis_client import redis_client
 from app.utils.response import success_response, SuccessResponseModel, ErrorResponseModel
+from app.utils.request_context import extract_client_context
 from app.services.email_service import EmailService
 from app.repositories.space_repository import SpaceRepository
+from app.repositories.notification_repository import NotificationRepository
 from app.services.space_service import SpaceService
 
 async def check_rate_limit(key: str, max_requests: int = 5, window_seconds: int = 600):
@@ -81,7 +83,11 @@ async def register(user_in: RegisterUser, db: AsyncSession = Depends(get_db)):
     )
 
 @router.post("/signin", response_model=SuccessResponseModel[Token])
-async def login(user_in: LoginUser, db: AsyncSession = Depends(get_db)):
+async def login(
+    user_in: LoginUser,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(User).filter(User.email == user_in.email))
     user = result.scalars().first()
     
@@ -97,6 +103,15 @@ async def login(user_in: LoginUser, db: AsyncSession = Depends(get_db)):
         )
     
     token = await create_session_token(user.id)
+
+    device_name, location = extract_client_context(request)
+    await NotificationRepository(db).create(
+        user_id=user.id,
+        title="Security Alert: New Login",
+        message=f"New login detected from {device_name} ({location}).",
+        type="security",
+    )
+
     return success_response(
         message="Login successful",
         data=Token(
@@ -196,6 +211,7 @@ async def change_email(
 @router.post("/change-password", response_model=SuccessResponseModel[None])
 async def change_password(
     request: ChangePasswordRequest,
+    http_request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -210,6 +226,14 @@ async def change_password(
     current_user.password = new_hashed_password
     db.add(current_user)
     await db.commit()
+
+    device_name, location = extract_client_context(http_request)
+    await NotificationRepository(db).create(
+        user_id=current_user.id,
+        title="Security Alert: Password Changed",
+        message=f"Your account password was changed from {device_name} ({location}).",
+        type="security",
+    )
     
     return success_response(message="Password has been changed successfully.")
 
@@ -242,6 +266,7 @@ async def reset_password_request(
 @router.post("/reset-password/verify", response_model=SuccessResponseModel[None])
 async def reset_password_verify(
     request: ResetPasswordVerify,
+    http_request: Request,
     db: AsyncSession = Depends(get_db)
 ):
     await check_rate_limit(f"rate_limit:reset_verify:{request.request_id}")
@@ -276,6 +301,14 @@ async def reset_password_verify(
     
     await redis_client.delete(hash_key)
     await redis_client.delete(user_id_key)
+
+    device_name, location = extract_client_context(http_request)
+    await NotificationRepository(db).create(
+        user_id=user.id,
+        title="Security Alert: Password Reset",
+        message=f"Your account password was reset from {device_name} ({location}).",
+        type="security",
+    )
     
     return success_response(message="Password has been reset successfully.")
 
