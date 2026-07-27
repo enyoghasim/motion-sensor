@@ -16,7 +16,9 @@ def get_message(error):
         return f"{field} must be at most {error['ctx']['max_length']} characters."
 
     if t == "value_error":
-        return str(error["ctx"]["error"])
+        ctx_error = error.get("ctx", {}).get("error")
+        if ctx_error is not None:
+            return str(ctx_error)
 
     return error["msg"]
 

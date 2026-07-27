@@ -20,7 +20,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
-    email_verified: Mapped[bool] = mapped_column(Boolean, server_default='false')
+    email_verified: Mapped[bool] = mapped_column(Boolean, server_default='false', default=False)
     
     devices: Mapped[list["Device"]] = relationship("Device", back_populates="owner")
     spaces: Mapped[list["Space"]] = relationship("Space", back_populates="owner")

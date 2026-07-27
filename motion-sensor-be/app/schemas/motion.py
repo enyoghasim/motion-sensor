@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
@@ -11,7 +12,7 @@ class MotionReport(BaseModel):
 class MotionOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    device_id: str
+    device_id: uuid.UUID
     motion_detected: bool
     timestamp: datetime
 
