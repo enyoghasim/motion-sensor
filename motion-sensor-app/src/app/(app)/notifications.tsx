@@ -15,6 +15,7 @@ import { useNotificationsQuery } from "@/modules/notifications/services/notifica
 import { PullToRefreshList } from "@/modules/shared/components/pull-to-refresh-list";
 import { Spinner } from "@/modules/shared/components/spinner";
 import { ThemedText } from "@/modules/shared/components/themed-text";
+import { cn } from "@/modules/shared/lib/util";
 
 export default function NotificationsScreen() {
   const { data: user } = useCurrentUserQuery();
@@ -50,9 +51,16 @@ export default function NotificationsScreen() {
               hitSlop={12}
               onPress={() => markAllReadMutation.mutate()}
               disabled={markAllReadMutation.isPending}
-              className="flex-row items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1.5"
+              className={cn(
+                "flex-row items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1.5",
+                markAllReadMutation.isPending && "opacity-50",
+              )}
             >
-              <HugeiconsIcon icon={Tick02Icon} size={14} color="#f97316" />
+              {markAllReadMutation.isPending ? (
+                <Spinner size={14} color="#f97316" />
+              ) : (
+                <HugeiconsIcon icon={Tick02Icon} size={14} color="#f97316" />
+              )}
               <ThemedText variant="xs" weight="medium" className="text-orange-500">
                 Read all
               </ThemedText>

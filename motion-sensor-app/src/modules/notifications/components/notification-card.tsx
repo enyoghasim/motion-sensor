@@ -8,6 +8,8 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { Pressable, View } from "react-native";
 
+import { cn } from "../../shared/lib/util";
+import { Spinner } from "../../shared/components/spinner";
 import { ThemedText } from "../../shared/components/themed-text";
 import { useMarkNotificationReadMutation } from "../services/notification.mutation";
 import { Notification } from "../types";
@@ -32,8 +34,6 @@ export function NotificationCard({ notification }: NotificationCardProps) {
     }
   };
 
-
-
   const formattedDate = new Date(notification.created_at).toLocaleString([], {
     month: "short",
     day: "numeric",
@@ -42,7 +42,7 @@ export function NotificationCard({ notification }: NotificationCardProps) {
   });
 
   const handlePress = () => {
-    if (!notification.read) {
+    if (!notification.read && !markReadMutation.isPending) {
       markReadMutation.mutate(notification.id);
     }
   };
@@ -50,11 +50,14 @@ export function NotificationCard({ notification }: NotificationCardProps) {
   return (
     <Pressable
       onPress={handlePress}
-      className={`flex-row items-start gap-3.5 rounded-2xl p-4 transition-all ${
+      disabled={markReadMutation.isPending}
+      className={cn(
+        "flex-row items-start gap-3.5 rounded-2xl p-4 active:opacity-80",
         notification.read
           ? "border border-zinc-800/80 bg-zinc-900/40"
-          : "border border-orange-500/30 bg-zinc-900"
-      }`}
+          : "border border-orange-500/30 bg-zinc-900",
+        markReadMutation.isPending && "opacity-60",
+      )}
     >
       <View
         className={`h-10 w-10 items-center justify-center rounded-xl ${
@@ -96,11 +99,16 @@ export function NotificationCard({ notification }: NotificationCardProps) {
             <Pressable
               hitSlop={8}
               onPress={handlePress}
+              disabled={markReadMutation.isPending}
               className="flex-row items-center gap-1"
             >
-              <HugeiconsIcon icon={Tick02Icon} size={14} color="#f97316" />
+              {markReadMutation.isPending ? (
+                <Spinner size={14} color="#f97316" />
+              ) : (
+                <HugeiconsIcon icon={Tick02Icon} size={14} color="#f97316" />
+              )}
               <ThemedText variant="xs" className="text-orange-500">
-                Mark read
+                {markReadMutation.isPending ? "Marking..." : "Mark read"}
               </ThemedText>
             </Pressable>
           )}
