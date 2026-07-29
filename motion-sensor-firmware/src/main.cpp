@@ -13,8 +13,6 @@ void setup()
         Pins::SDA,
         Pins::SCL,
         Display::SCREEN_I2C_ADDRESS);
-
-    // showSpinner(Display::SCREEN_WIDTH, Display::SCREEN_HEIGHT);
 }
 
 void loop()
