@@ -18,6 +18,10 @@ inline constexpr uint8_t OLED_RESET = -1;
 inline constexpr uint8_t SCREEN_I2C_ADDRESS = 0x3C;
 } // namespace Display
 
+namespace Ble {
+inline constexpr char DEVICE_NAME[] = "MotionSensor";
+} // namespace Ble
+
 namespace DeviceState {
 enum class State : uint8_t {
   BOOTING,

@@ -1,3 +1,4 @@
+#include "ble_manager.h"
 #include "constants.h"
 #include "display_manager.h"
 #include "hardware_init.h"
@@ -6,6 +7,7 @@
 
 StorageManager storageManager;
 DisplayManager displayManager(deviceDisplay);
+BleManager bleManager(storageManager, displayManager);
 DeviceState::State DeviceState::currentState = DeviceState::State::BOOTING;
 
 void setup() {
@@ -20,6 +22,7 @@ void setup() {
 
   if (!storageManager.hasCreds()) {
     DeviceState::setState(DeviceState::State::SETUP_MODE);
+    bleManager.init(Ble::DEVICE_NAME);
     displayManager.renderCenteredMessage("Open IOTX app to",
                                          "configure device");
   } else {
