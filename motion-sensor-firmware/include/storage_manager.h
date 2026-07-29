@@ -67,4 +67,66 @@ public:
         this->preferences.end();
         return success;
     }
+
+    bool hasWiFiCredentials()
+    {
+        this->preferences.begin(this->NAMESPACE, true);
+        bool exists = this->preferences.isKey("wifi");
+        this->preferences.end();
+        return exists;
+    }
+
+    bool saveAccessToken(const char *accessToken)
+    {
+        if (!Utils::isNullTerminated(accessToken, 64))
+        {
+            return false;
+        }
+
+        if (accessToken[0] == '\0')
+        {
+            return false;
+        }
+
+        this->preferences.begin(this->NAMESPACE, false);
+
+        bool success = this->preferences.putString("access_token", accessToken);
+        this->preferences.end();
+        return success;
+    }
+
+    String loadAccessToken()
+    {
+        this->preferences.begin(this->NAMESPACE, true);
+
+        String accessToken = this->preferences.getString("access_token", "");
+
+        this->preferences.end();
+
+        return accessToken;
+    }
+
+    bool clearAccessToken()
+    {
+        this->preferences.begin(this->NAMESPACE, false);
+        bool success = this->preferences.remove("access_token");
+        this->preferences.end();
+        return success;
+    }
+
+    bool clearAll()
+    {
+        this->preferences.begin(this->NAMESPACE, false);
+        bool success = this->preferences.clear();
+        this->preferences.end();
+        return success;
+    }
+
+    bool hasAccessToken()
+    {
+        this->preferences.begin(this->NAMESPACE, true);
+        bool exists = this->preferences.isKey("access_token");
+        this->preferences.end();
+        return exists;
+    }
 };

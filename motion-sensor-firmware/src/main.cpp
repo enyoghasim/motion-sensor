@@ -1,6 +1,11 @@
 #include "constants.h"
+#include "display_manager.h"
 #include "hardware_init.h"
+#include "storage_manager.h"
 #include <Arduino.h>
+
+StorageManager storageManager;
+DisplayManager displayManager;
 
 void setup()
 {
@@ -13,23 +18,10 @@ void setup()
         Pins::SDA,
         Pins::SCL,
         Display::SCREEN_I2C_ADDRESS);
+
+    displayManager.showStartupScreen(storageManager.hasWiFiCredentials());
 }
 
 void loop()
 {
-    // deviceDisplay.clearDisplay();
-    // deviceDisplay.setTextSize(1);
-    // deviceDisplay.setTextColor(SSD1306_WHITE);
-    // deviceDisplay.setCursor(0, 0);
-    // deviceDisplay.println("Running.hh..");
-    // deviceDisplay.display();
-    // delay(1000);
 }
-
-//   deviceDisplay.clearDisplay();
-//   deviceDisplay.setTextSize(1);
-//   deviceDisplay.setTextColor(SSD1306_WHITE);
-//   deviceDisplay.setCursor(0, 0);
-//   deviceDisplay.println("OLED init OK");
-//   deviceDisplay.println("Starting...");
-//   deviceDisplay.display();
