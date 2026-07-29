@@ -1,132 +1,120 @@
 #pragma once
 #include "utils.h"
+#include <Arduino.h>
 #include <Preferences.h>
 
-struct WiFiCredentials
-{
-    char ssid[32];
-    char password[64];
+struct WiFiCredentials {
+  char ssid[32];
+  char password[64];
 };
 
-class StorageManager
-{
+class StorageManager {
 private:
-    Preferences preferences;
-    const char *NAMESPACE = "motion-sensor";
+  Preferences preferences;
+  const char *NAMESPACE = "motion-sensor";
 
 public:
-    bool saveWiFiCredentials(const WiFiCredentials &credentials)
-    {
-        if (!Utils::isNullTerminated(credentials.ssid, sizeof(credentials.ssid)))
-        {
-            return false;
-        }
+  bool saveWiFiCredentials(const WiFiCredentials &credentials) {
+    if (!Utils::isNullTerminated(credentials.ssid, sizeof(credentials.ssid))) {
+      return false;
+    }
 
-        if (credentials.ssid[0] == '\0')
-        {
-            return false;
-        }
+    if (credentials.ssid[0] == '\0') {
+      return false;
+    }
 
-        if (!Utils::isNullTerminated(credentials.password,
-                                     sizeof(credentials.password)))
-        {
-            return false;
-        }
+    if (!Utils::isNullTerminated(credentials.password,
+                                 sizeof(credentials.password))) {
+      return false;
+    }
 
-        this->preferences.begin(this->NAMESPACE, false);
+    this->preferences.begin(this->NAMESPACE, false);
 
-        bool success = this->preferences.putBytes("wifi", &credentials,
+    bool success = this->preferences.putBytes("wifi", &credentials,
+                                              sizeof(WiFiCredentials));
+    this->preferences.end();
+    return success;
+  }
+
+  WiFiCredentials loadWiFiCredentials() {
+
+    WiFiCredentials credentials{};
+
+    this->preferences.begin(this->NAMESPACE, true);
+
+    size_t bytesRead = this->preferences.getBytes("wifi", &credentials,
                                                   sizeof(WiFiCredentials));
-        this->preferences.end();
-        return success;
+    this->preferences.end();
+
+    if (bytesRead != sizeof(WiFiCredentials)) {
+      return WiFiCredentials{};
     }
 
-    WiFiCredentials loadWiFiCredentials()
-    {
+    return credentials;
+  }
 
-        WiFiCredentials credentials{};
+  bool clearWiFiCredentials() {
+    this->preferences.begin(this->NAMESPACE, false);
+    bool success = this->preferences.remove("wifi");
+    this->preferences.end();
+    return success;
+  }
 
-        this->preferences.begin(this->NAMESPACE, true);
+  bool hasWiFiCredentials() {
+    this->preferences.begin(this->NAMESPACE, true);
+    bool exists = this->preferences.isKey("wifi");
+    this->preferences.end();
+    return exists;
+  }
 
-        size_t bytesRead = this->preferences.getBytes("wifi", &credentials,
-                                                      sizeof(WiFiCredentials));
-        this->preferences.end();
-
-        if (bytesRead != sizeof(WiFiCredentials))
-        {
-            return WiFiCredentials{};
-        }
-
-        return credentials;
+  bool saveAccessToken(const char *accessToken) {
+    if (!Utils::isNullTerminated(accessToken, 64)) {
+      return false;
     }
 
-    bool clearWiFiCredentials()
-    {
-        this->preferences.begin(this->NAMESPACE, false);
-        bool success = this->preferences.remove("wifi");
-        this->preferences.end();
-        return success;
+    if (accessToken[0] == '\0') {
+      return false;
     }
 
-    bool hasWiFiCredentials()
-    {
-        this->preferences.begin(this->NAMESPACE, true);
-        bool exists = this->preferences.isKey("wifi");
-        this->preferences.end();
-        return exists;
-    }
+    this->preferences.begin(this->NAMESPACE, false);
 
-    bool saveAccessToken(const char *accessToken)
-    {
-        if (!Utils::isNullTerminated(accessToken, 64))
-        {
-            return false;
-        }
+    bool success = this->preferences.putString("access_token", accessToken);
+    this->preferences.end();
+    return success;
+  }
 
-        if (accessToken[0] == '\0')
-        {
-            return false;
-        }
+  String loadAccessToken() {
+    this->preferences.begin(this->NAMESPACE, true);
 
-        this->preferences.begin(this->NAMESPACE, false);
+    String accessToken = this->preferences.getString("access_token", "");
 
-        bool success = this->preferences.putString("access_token", accessToken);
-        this->preferences.end();
-        return success;
-    }
+    this->preferences.end();
 
-    String loadAccessToken()
-    {
-        this->preferences.begin(this->NAMESPACE, true);
+    return accessToken;
+  }
 
-        String accessToken = this->preferences.getString("access_token", "");
+  bool clearAccessToken() {
+    this->preferences.begin(this->NAMESPACE, false);
+    bool success = this->preferences.remove("access_token");
+    this->preferences.end();
+    return success;
+  }
 
-        this->preferences.end();
+  bool clearAll() {
+    this->preferences.begin(this->NAMESPACE, false);
+    bool success = this->preferences.clear();
+    this->preferences.end();
+    return success;
+  }
 
-        return accessToken;
-    }
+  bool hasAccessToken() {
+    this->preferences.begin(this->NAMESPACE, true);
+    bool exists = this->preferences.isKey("access_token");
+    this->preferences.end();
+    return exists;
+  }
 
-    bool clearAccessToken()
-    {
-        this->preferences.begin(this->NAMESPACE, false);
-        bool success = this->preferences.remove("access_token");
-        this->preferences.end();
-        return success;
-    }
-
-    bool clearAll()
-    {
-        this->preferences.begin(this->NAMESPACE, false);
-        bool success = this->preferences.clear();
-        this->preferences.end();
-        return success;
-    }
-
-    bool hasAccessToken()
-    {
-        this->preferences.begin(this->NAMESPACE, true);
-        bool exists = this->preferences.isKey("access_token");
-        this->preferences.end();
-        return exists;
-    }
+  bool hasCreds() {
+    return this->hasWiFiCredentials() && this->hasAccessToken();
+  }
 };

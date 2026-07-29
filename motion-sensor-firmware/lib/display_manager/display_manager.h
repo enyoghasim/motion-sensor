@@ -1,7 +1,6 @@
 #pragma once
 
-class DisplayManager
-{
+class DisplayManager {
 public:
-	void showStartupScreen(bool hasWiFiCredentials);
+  void renderCenteredMessage(const char *firstLine, const char *secondLine);
 };

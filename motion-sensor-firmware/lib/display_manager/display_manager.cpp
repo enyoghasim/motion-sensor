@@ -3,9 +3,9 @@
 #include "hardware_init.h"
 #include <Arduino.h>
 
-namespace
-{
-void renderCenteredMessage(const char *firstLine, const char *secondLine)
+// namespace {
+void DisplayManager::renderCenteredMessage(const char *firstLine,
+										   const char *secondLine)
 {
 	deviceDisplay.clearDisplay();
 	deviceDisplay.setTextSize(1);
@@ -22,15 +22,15 @@ void renderCenteredMessage(const char *firstLine, const char *secondLine)
 
 	deviceDisplay.display();
 }
-} // namespace
+// } // namespace
 
-void DisplayManager::showStartupScreen(bool hasWiFiCredentials)
-{
-	if (hasWiFiCredentials)
-	{
-		renderCenteredMessage("WiFi saved", "Ready to connect");
-		return;
-	}
+// void DisplayManager::showStartupScreen(bool hasWiFiCredentials)
+// {
+// 	if (hasWiFiCredentials)
+// 	{
+// 		renderCenteredMessage("WiFi saved", "Ready to connect");
+// 		return;
+// 	}
 
-	renderCenteredMessage("No WiFi saved", "Start setup mode");
-}
+// 	renderCenteredMessage("No WiFi saved", "Start setup mode");
+// }
