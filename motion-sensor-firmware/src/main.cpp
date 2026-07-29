@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 StorageManager storageManager;
-DisplayManager displayManager;
+DisplayManager displayManager(deviceDisplay);
 DeviceState::State DeviceState::currentState = DeviceState::State::BOOTING;
 
 void setup() {
@@ -20,8 +20,8 @@ void setup() {
 
   if (!storageManager.hasCreds()) {
     DeviceState::setState(DeviceState::State::SETUP_MODE);
-    displayManager.renderCenteredMessage(
-        "Open the IOTX app on your phone to configure", nullptr);
+    displayManager.renderCenteredMessage("Open IOTX app to",
+                                         "configure device");
   } else {
     DeviceState::setState(DeviceState::State::CONNECTING_TO_WIFI);
     displayManager.renderCenteredMessage("Connecting to WiFi...", nullptr);
