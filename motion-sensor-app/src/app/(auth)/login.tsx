@@ -33,11 +33,20 @@ export default function LoginScreen() {
 
   const onSubmit = (data: LoginValues) => login(data);
 
+  const onBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/");
+  };
+
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-black">
       <View className="px-6">
         <Pressable
-          onPress={() => router.back()}
+          onPress={onBack}
           hitSlop={12}
           className="w-10 h-10 items-center justify-center -ml-2"
         >

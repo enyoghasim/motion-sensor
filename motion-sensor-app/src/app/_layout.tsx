@@ -18,12 +18,12 @@ function AppGate() {
   return (
     <>
       <AnimatedSplashOverlay ready={!isLoading} />
-      <Slot />
-      {/* <Stack
+      {/* <Slot /> */}
+      <Stack
         screenOptions={{
           headerShown: false,
-        }} */}
-      {/* /> */}
+        }}
+      />
     </>
   );
 }
