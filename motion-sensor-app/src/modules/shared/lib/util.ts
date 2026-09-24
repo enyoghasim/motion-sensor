@@ -32,6 +32,13 @@ export function handleApiError(error: unknown): ApiError {
     if (error.message) return new ApiError(error.message);
   }
 
+  // Non-Axios errors (e.g. BleError from react-native-ble-plx during device
+  // pairing/provisioning) still carry a useful .message -- surface it
+  // instead of always falling back to the fully generic string below.
+  if (error instanceof Error && error.message) {
+    return new ApiError(error.message);
+  }
+
   return new ApiError("Something went wrong. Please try again later.");
 }
 

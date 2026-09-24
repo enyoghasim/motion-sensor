@@ -5,8 +5,10 @@
   "description": "Motion Sensor System: iOS App + Python FastAPI Backend + ESP32 Firmware",
   "scripts": {
     "install:be": "cd motion-sensor-be && pip install -r requirements.txt",
-    "dev:be": "cd motion-sensor-be && uvicorn app.main:app --reload --port 8080",
+    "dev:be": "./motion-sensor-be/start_local.sh",
     "migrate:be": "cd motion-sensor-be && alembic upgrade head",
+    "app:ios": "cd motion-sensor-app && pnpm ios",
+    "app:android": "cd motion-sensor-app && pnpm android",
     "build:firmware": "cd motion-sensor-firmware && platformio run",
     "upload:firmware": "cd motion-sensor-firmware && platformio run -t upload",
     "clean": "cd motion-sensor-firmware && platformio run -t clean",

@@ -4,6 +4,7 @@ import {
   getAccessToken,
 } from "../../auth/services/auth-storage";
 import { AUTH_ENDPOINTS } from "../../auth/services/auth.endpoints";
+import { DEVICE_ENDPOINTS } from "../../devices/services/device.endpoints";
 import { env } from "./env";
 
 const api = axios.create({
@@ -16,7 +17,13 @@ function shouldSkipTokenRefresh(url?: string) {
     !url ||
     url.includes(AUTH_ENDPOINTS.login) ||
     url.includes(AUTH_ENDPOINTS.logout) ||
-    url.includes(AUTH_ENDPOINTS.register)
+    url.includes(AUTH_ENDPOINTS.register) ||
+    // claim/start and claim/finish 401 to mean "this device's signature is
+    // invalid" (a business-logic failure of the device claim, checked in
+    // DeviceService), not "your session is invalid" -- don't sign the user
+    // out over a bad device pairing attempt.
+    url.includes(DEVICE_ENDPOINTS.claimStart) ||
+    url.includes(DEVICE_ENDPOINTS.claimFinish)
   );
 }
 
@@ -33,7 +40,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   async (response) => {
     //  mimic network delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     return response;
   },
   async (error: AxiosError) => {

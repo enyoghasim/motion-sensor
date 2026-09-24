@@ -19,3 +19,12 @@ export type DiscoveredDevice = {
   name: string;
   mac: string;
 };
+
+// A WiFi network found by the device's own scan, relayed over BLE (see
+// WIFI_SCAN_CHAR_UUID) so the picker works identically on iOS and Android --
+// neither platform lets an app scan for nearby networks from the phone side.
+export type WifiNetwork = {
+  ssid: string;
+  rssi: number;
+  secure: boolean;
+};
