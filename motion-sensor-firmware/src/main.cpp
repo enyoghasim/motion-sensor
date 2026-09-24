@@ -31,4 +31,7 @@ void setup() {
   }
 }
 
-void loop() {}
+void loop() {
+  bleManager.loopWifiScan();
+  bleManager.loopSignChallenge();
+}

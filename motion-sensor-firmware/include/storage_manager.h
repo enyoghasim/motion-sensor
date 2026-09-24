@@ -117,4 +117,25 @@ public:
   bool hasCreds() {
     return this->hasWiFiCredentials() && this->hasAccessToken();
   }
+
+  bool saveEd25519PrivateKey(const uint8_t privateKey[32]) {
+    this->preferences.begin(this->NAMESPACE, false);
+    bool success = this->preferences.putBytes("ed25519_sk", privateKey, 32);
+    this->preferences.end();
+    return success;
+  }
+
+  bool loadEd25519PrivateKey(uint8_t privateKey[32]) {
+    this->preferences.begin(this->NAMESPACE, true);
+    size_t bytesRead = this->preferences.getBytes("ed25519_sk", privateKey, 32);
+    this->preferences.end();
+    return bytesRead == 32;
+  }
+
+  bool hasEd25519PrivateKey() {
+    this->preferences.begin(this->NAMESPACE, true);
+    bool exists = this->preferences.isKey("ed25519_sk");
+    this->preferences.end();
+    return exists;
+  }
 };
